@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Description Generator</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="/static/js/script.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Description Generator</h2>
+      <!-- Two Buttons at the Top -->
+      <div class="button-group">
+        <button class="btn create-btn" onclick="showCreateForm()">
+          Create New Opportunity
+        </button>
+        <button class="btn pass-btn" onclick="showPassForm()">
+          Pass an Opportunity
+        </button>
+      </div>
+
+      <!-- Create New Opportunity Section -->
+      <div id="createForm" style="display: none;">
+        <h3>Create New Opportunity</h3>
+        <div class="selection-buttons">
+          <button type="button" onclick="showCreateCompanyForm()">For My Company</button>
+          <button type="button" onclick="showCreateIndividualForm()">Individual</button>
+        </div>
+
+        <!-- Form for "For My Company" -->
+        <div id="createCompanyForm" class="form-container" style="display: none;">
+          <div class="form-group">
+            <label for="companyName" class="required">Company Name:</label>
+            <input type="text" id="companyName" placeholder="Enter Company Name (e.g., Manvian)" autocomplete="off" required>
+            <span id="companyName-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="opportunityTitle" class="required">Opportunity Title:</label>
+            <input type="text" id="opportunityTitle" placeholder="Enter Opportunity Title (e.g., Senior Developer)" required>
+            <span id="opportunityTitle-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="opportunityType" class="required">Opportunity Type:</label>
+            <select id="opportunityType" required>
+              <option value="">Select</option>
+              <option>Internship (Stipend)</option>
+              <option>Internship (Unpaid)</option>
+              <option>Part time</option>
+              <option>Full time</option>
+              <option>Contract</option>
+              <option>Project (freelancers)</option>
+              <option>Project (Service companies)</option>
+            </select>
+            <span id="opportunityType-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="workDuration">Work Duration:</label>
+            <input type="text" id="workDuration" placeholder="Enter Work Duration (e.g., 6 months)">
+            <span id="workDuration-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="location" class="required">Location:</label>
+            <input type="text" id="location" placeholder="Enter Location (e.g., Chennai, India)" required>
+            <span id="location-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="workMode" class="required">Work Mode:</label>
+            <select id="workMode" required>
+              <option value="">Select</option>
+              <option value="Onsite">On-site</option>
+              <option value="Remote">Remote</option>
+              <option value="Hybrid">Hybrid</option>
+            </select>
+            <span id="workMode-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="numberOfOpenings" class="required">No of Openings:</label>
+            <input type="number" id="numberOfOpenings" placeholder="Enter Number of Openings (e.g., 2)" min="1" required>
+            <span id="numberOfOpenings-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="lastDate" class="required">Last Date to Apply:</label>
+            <input type="date" id="lastDate" required>
+            <span id="lastDate-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label>Education Requirements:</label>
+            <div class="checkbox-group" style="flex-wrap: wrap; gap: 10px;">
+              <label>
+                <input type="checkbox" class="education-checkbox" value="10th Grade" onchange="updateEducationRequirements()"> 10th Grade
+              </label>
+              <label>
+                <input type="checkbox" class="education-checkbox" value="12th Grade" onchange="updateEducationRequirements()"> 12th Grade
+              </label>
+              <label>
+                <input type="checkbox" class="education-checkbox" value="Under-Graduate" onchange="updateEducationRequirements()"> Under-Graduate
+              </label>
+              <label>
+                <input type="checkbox" class="education-checkbox" value="Post-Graduate" onchange="updateEducationRequirements()"> Post-Graduate
+              </label>
+              <label>
+                <input type="checkbox" class="education-checkbox" value="PhD" onchange="updateEducationRequirements()"> PhD
+              </label>
+              <label>
+                <input type="checkbox" class="education-checkbox" value="Other" onchange="updateEducationRequirements()"> Other
+              </label>
+              <label>
+                <input type="checkbox" id="educationNotNecessary" value="Not Necessary" onchange="toggleEducationRequirements()"> Not Necessary
+              </label>
+            </div>
+            <input type="hidden" id="educationRequirements" value="">
+            <span id="educationRequirements-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="industryExpertise">Industry Expertise:</label>
+            <input type="text" id="industryExpertise" placeholder="Enter Industry Expertise (e.g., Technology)">
+            <span id="industryExpertise-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="preferredExperience">Preferred Experience:</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <input type="number" id="experienceMin" placeholder="Min Years (e.g., 3)" min="0" oninput="updateExperienceValue()">
+              <input type="number" id="experienceMax" placeholder="Max Years (e.g., 5)" min="0" oninput="updateExperienceValue()">
+              <label>
+                <input type="checkbox" id="fresherCheckbox" onchange="toggleExperienceFields()"> Fresher
+              </label>
+            </div>
+            <input type="hidden" id="preferredExperience" value="">
+            <span id="preferredExperience-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="skillsRequired" class="required">Skills Required:</label>
+            <input type="text" id="skillsRequired" placeholder="Comma separated (e.g., Python, Node.js)" required>
+            <span id="skillsRequired-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="languagePreference">Language Preference:</label>
+            <input type="text" id="languagePreference" placeholder="Enter Language Preference (e.g., English)">
+            <span id="languagePreference-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="genderPreference">Gender Preference:</label>
+            <select id="genderPreference">
+              <option value="Any">Any</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+            <span id="genderPreference-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label class="required">Salary/Stipend/Budget:</label>
+            <div id="companySalaryRange">
+              <input type="number" id="salaryMin" placeholder="Minimum ₹ (e.g., 500000)">
+              <input type="number" id="salaryMax" placeholder="Maximum ₹ (e.g., 800000)">
+            </div>
+            <label for="timeCommitment" class="required">Time Commitment:</label>
+            <select id="timeCommitment" required style="margin-top: 10px;" onchange="toggleCustomTimeCommitment('timeCommitment', 'customTimeCommitment', 'customTimeCommitment2')">
+              <option value="">Select</option>
+              <option value="/ Year">/ Year</option>
+              <option value="/ Month">/ Month</option>
+              <option value="/ Week">/ Week</option>
+              <option value="/ Day">/ Day</option>
+              <option value="/ Hour">/ Hour</option>
+              <option value="/ Project">/ Project</option>
+              <option value="Customize">Customize</option>
+            </select>
+            <input type="text" id="customTimeCommitment" placeholder="Enter custom time commitment" style="display: none; margin-top: 10px;">
+            <input type="text" id="customTimeCommitment2" placeholder="Enter additional time commitment" style="display: none; margin-top: 10px;">
+            <span id="timeCommitment-error" class="error-message"></span>
+            <div class="radio-group">
+              <label>
+                <input type="radio" name="salaryOption" id="salaryNegotiable" value="Negotiable" checked> Negotiable
+              </label>
+              <label>
+                <input type="radio" name="salaryOption" id="salaryNotDisclose" value="Prefer Not to Disclose"> Prefer Not to Disclose
+              </label>
+            </div>
+            <span id="salaryMin-error" class="error-message"></span>
+            <span id="salaryMax-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <button class="btn submit-btn" onclick="generateDescription('company')">
+              <img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" alt="Chatbot" width="30" style="vertical-align: middle;">
+              Generate with AI
+            </button>
+          </div>
+          <!-- Description Box for "Create - For My Company" -->
+          <div id="createCompanyDescription" contenteditable="true" style="display: none; border: 1px solid #ccc; padding: 10px; min-height: 100px; margin-top: 10px;" placeholder="Generated description will appear here..."></div>
+          <p style="margin-top: 10px; color: #555;">
+            You can make changes according to your preferences or edit accordingly.
+          </p>
+          <button class="btn" onclick="downloadDescription()">Download Description</button>
+          <button class="btn" onclick="copyToClipboard()">Copy to Clipboard</button>
+        </div>
+
+        <!-- Form for "Individual" -->
+        <div id="createIndividualForm" class="form-container" style="display: none;">
+          <div class="form-group">
+            <label for="individualIdentity" class="required">Your Identity:</label>
+            <select id="individualIdentity" required onchange="toggleCustomIdentity('individualIdentity', 'customIndividualIdentity')">
+              <option value="">Select</option>
+              <option value="Freelancer">Freelancer</option>
+              <option value="Creator">Creator</option>
+              <option value="Influencer">Influencer</option>
+              <option value="Educator/Trainer">Educator/Trainer</option>
+              <option value="Artist/Designer">Artist/Designer</option>
+              <option value="Startup Founder">Startup Founder</option>
+              <option value="Recruiter">Recruiter</option>
+              <option value="Other">Other</option>
+            </select>
+            <input type="text" id="customIndividualIdentity" placeholder="Enter custom identity (e.g., Student)" style="display: none; margin-top: 10px;">
+            <span id="individualIdentity-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="individualCompanyName" class="required">Your Name:</label>
+            <input type="text" id="individualCompanyName" required>
+            <span id="individualCompanyName-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="individualTitle" class="required">Opportunity Title:</label>
+            <input type="text" id="individualTitle" placeholder="Enter Opportunity Title (e.g., Senior Developer)" required>
+            <span id="individualTitle-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="individualPostType" class="required">Opportunity Type:</label>
+            <select id="individualPostType" required>
+              <option value="">Select</option>
+              <option>Internship (Stipend)</option>
+              <option>Internship (Unpaid)</option>
+              <option>Part time</option>
+              <option>Full time</option>
+              <option>Contract</option>
+              <option>Project (freelancers)</option>
+              <option>Project (Service companies)</option>
+            </select>
+            <span id="individualPostType-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="individualWorkDuration">Work Duration:</label>
+            <input type="text" id="individualWorkDuration" placeholder="Enter Work Duration (e.g., 6 months)">
+            <span id="individualWorkDuration-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="individualLocation" class="required">Location:</label>
+            <input type="text" id="individualLocation" placeholder="Enter Location (e.g., Chennai, India)" required>
+            <span id="individualLocation-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="individualWorkMode" class="required">Work Mode:</label>
+            <select id="individualWorkMode" required>
+              <option value="">Select</option>
+              <option value="Onsite">On-site</option>
+              <option value="Remote">Remote</option>
+              <option value="Hybrid">Hybrid</option>
+            </select>
+            <span id="individualWorkMode-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="individualVacancy" class="required">No of Openings:</label>
+            <input type="number" id="individualVacancy" placeholder="Enter Number of Openings (e.g., 2)" min="1" required>
+            <span id="individualVacancy-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="individualLastDate" class="required">Last Date to Apply:</label>
+            <input type="date" id="individualLastDate" required>
+            <span id="individualLastDate-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label>Education Requirements:</label>
+            <div class="checkbox-group" style="flex-wrap: wrap; gap: 10px;">
+              <label>
+                <input type="checkbox" class="education-checkbox" value="10th Grade" onchange="updateEducationRequirements()"> 10th Grade
+              </label>
+              <label>
+                <input type="checkbox" class="education-checkbox" value="12th Grade" onchange="updateEducationRequirements()"> 12th Grade
+              </label>
+              <label>
+                <input type="checkbox" class="education-checkbox" value="Under-Graduate" onchange="updateEducationRequirements()"> Under-Graduate
+              </label>
+              <label>
+                <input type="checkbox" class="education-checkbox" value="Post-Graduate" onchange="updateEducationRequirements()"> Post-Graduate
+              </label>
+              <label>
+                <input type="checkbox" class="education-checkbox" value="PhD" onchange="updateEducationRequirements()"> PhD
+              </label>
+              <label>
+                <input type="checkbox" class="education-checkbox" value="Other" onchange="updateEducationRequirements()"> Other
+              </label>
+              <label>
+                <input type="checkbox" id="educationNotNecessary" value="Not Necessary" onchange="toggleEducationRequirements()"> Not Necessary
+              </label>
+            </div>
+            <input type="hidden" id="educationRequirements" value="">
+            <span id="educationRequirements-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="individualIndustryExpertise">Industry Expertise:</label>
+            <input type="text" id="individualIndustryExpertise" placeholder="Enter Industry Expertise (e.g., Technology)">
+            <span id="individualIndustryExpertise-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="individualPreferredExperience">Preferred Experience:</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <input type="number" id="individualExperienceMin" placeholder="Min Years (e.g., 3)" min="0" oninput="updateIndividualExperienceValue()">
+              <input type="number" id="individualExperienceMax" placeholder="Max Years (e.g., 5)" min="0" oninput="updateIndividualExperienceValue()">
+              <label>
+                <input type="checkbox" id="individualFresherCheckbox" onchange="toggleIndividualExperienceFields()"> Fresher
+              </label>
+            </div>
+            <input type="hidden" id="individualPreferredExperience" value="">
+            <span id="individualPreferredExperience-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="individualSkills" class="required">Skills Required:</label>
+            <input type="text" id="individualSkills" placeholder="Comma separated (e.g., Python, Node.js)" required>
+            <span id="individualSkills-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="individualLanguagePreference">Language Preference:</label>
+            <input type="text" id="individualLanguagePreference" placeholder="Enter Language Preference (e.g., English)">
+            <span id="individualLanguagePreference-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="individualGenderPreference">Gender Preference:</label>
+            <select id="individualGenderPreference">
+              <option value="Any">Any</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+            <span id="individualGenderPreference-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label class="required">Salary/Stipend/Budget:</label>
+            <div id="individualSalaryRange">
+              <input type="number" id="individualSalaryFrom" placeholder="Minimum ₹ (e.g., 500000)">
+              <input type="number" id="individualSalaryTo" placeholder="Maximum ₹ (e.g., 800000)">
+            </div>
+            <label for="individualTimeCommitment" class="required">Time Commitment:</label>
+            <select id="individualTimeCommitment" required style="margin-top: 10px;" onchange="toggleCustomTimeCommitment('individualTimeCommitment', 'customIndividualTimeCommitment', 'customIndividualTimeCommitment2')">
+              <option value="">Select</option>
+              <option value="/ Year">/ Year</option>
+              <option value="/ Month">/ Month</option>
+              <option value="/ Week">/ Week</option>
+              <option value="/ Day">/ Day</option>
+              <option value="/ Hour">/ Hour</option>
+              <option value="/ Project">/ Project</option>
+              <option value="Customize">Customize</option>
+            </select>
+            <input type="text" id="customIndividualTimeCommitment" placeholder="Enter custom time commitment (e.g., Per Milestone)" style="display: none; margin-top: 10px;">
+            <input type="text" id="customIndividualTimeCommitment2" placeholder="Enter additional time commitment" style="display: none; margin-top: 10px;">
+            <span id="individualTimeCommitment-error" class="error-message"></span>
+            <div class="radio-group">
+              <label>
+                <input type="radio" name="individualSalaryOption" id="individualSalaryNegotiable" value="Negotiable" checked> Negotiable
+              </label>
+              <label>
+                <input type="radio" name="individualSalaryOption" id="individualSalaryNotDisclose" value="Prefer Not to Disclose"> Prefer Not to Disclose
+              </label>
+            </div>
+            <span id="individualSalaryFrom-error" class="error-message"></span>
+            <span id="individualSalaryTo-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <button class="btn submit-btn" onclick="generateDescription('individual')">
+              <img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" alt="Chatbot" width="30" style="vertical-align: middle;">
+              Generate with AI
+            </button>
+          </div>
+          <!-- Description Box for "Create - Individual" -->
+          <div id="createIndividualDescription" contenteditable="true" style="display: none; border: 1px solid #ccc; padding: 10px; min-height: 100px; margin-top: 10px;" placeholder="Generated description will appear here..."></div>
+          <p style="margin-top: 10px; color: #555;">
+            You can make changes according to your preferences or edit accordingly.
+          </p>
+          <button class="btn" onclick="downloadDescription()">Download Description</button>
+          <button class="btn" onclick="copyToClipboard()">Copy to Clipboard</button>
+        </div>
+      </div>
+
+      <!-- Pass an Opportunity Section -->
+      <div id="passForm" style="display: none;">
+        <h3>Pass An Opportunity</h3>
+        <div class="selection-buttons">
+          <button type="button" onclick="showPassCompanyForm()">For My Company</button>
+          <button type="button" onclick="showPassIndividualForm()">Individual</button>
+        </div>
+
+        <!-- Form for "For My Company" in Pass an Opportunity -->
+        <div id="passCompanyForm" class="form-container" style="display: none;">
+          <div class="form-group">
+            <label for="passCompanyName" class="required">Company Name:</label>
+            <input type="text" id="passCompanyName" placeholder="Enter Company Name (e.g., Manvian)" autocomplete="off" required>
+            <span id="passCompanyName-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="passOpportunityTitle" class="required">Opportunity Title:</label>
+            <input type="text" id="passOpportunityTitle" placeholder="Enter Opportunity Title (e.g., Senior Developer)" required>
+            <span id="passOpportunityTitle-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="passOpportunityType" class="required">Opportunity Type:</label>
+            <select id="passOpportunityType" required>
+              <option value="">Select</option>
+              <option>Internship (Stipend)</option>
+              <option>Internship (Unpaid)</option>
+              <option>Part time</option>
+              <option>Full time</option>
+              <option>Contract</option>
+              <option>Project (freelancers)</option>
+              <option>Project (Service companies)</option>
+            </select>
+            <span id="passOpportunityType-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="passLocation">Location:</label>
+            <input type="text" id="passLocation" placeholder="Enter Location (e.g., Chennai, India)">
+            <span id="passLocation-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="passWorkMode">Work Mode:</label>
+            <select id="passWorkMode">
+              <option value="">Select</option>
+              <option value="Onsite">On-site</option>
+              <option value="Remote">Remote</option>
+              <option value="Hybrid">Hybrid</option>
+            </select>
+            <span id="passWorkMode-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="passNumberOfOpenings">No of Openings:</label>
+            <input type="number" id="passNumberOfOpenings" placeholder="Enter Number of Openings (e.g., 2)" min="1">
+            <span id="passNumberOfOpenings-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="passLastDate">Last Date to Apply:</label>
+            <input type="date" id="passLastDate" required>
+            <span id="passLastDate-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label>Education Requirements:</label>
+            <div class="checkbox-group" style="flex-wrap: wrap; gap: 10px;">
+              <label>
+                <input type="checkbox" class="pass-education-checkbox" value="10th Grade" onchange="updatePassEducationRequirements()"> 10th Grade
+              </label>
+              <label>
+                <input type="checkbox" class="pass-education-checkbox" value="12th Grade" onchange="updatePassEducationRequirements()"> 12th Grade
+              </label>
+              <label>
+                <input type="checkbox" class="pass-education-checkbox" value="Under-Graduate" onchange="updatePassEducationRequirements()"> Under-Graduate
+              </label>
+              <label>
+                <input type="checkbox" class="pass-education-checkbox" value="Post-Graduate" onchange="updatePassEducationRequirements()"> Post-Graduate
+              </label>
+              <label>
+                <input type="checkbox" class="pass-education-checkbox" value="PhD" onchange="updatePassEducationRequirements()"> PhD
+              </label>
+              <label>
+                <input type="checkbox" class="pass-education-checkbox" value="Other" onchange="updatePassEducationRequirements()"> Other
+              </label>
+              <label>
+                <input type="checkbox" id="passEducationNotNecessary" value="Not Necessary" onchange="togglePassEducationRequirements()"> Not Necessary
+              </label>
+            </div>
+            <input type="hidden" id="passEducationRequirements" value="">
+            <span id="passEducationRequirements-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="passIndustryExpertise">Industry Expertise:</label>
+            <input type="text" id="passIndustryExpertise" placeholder="Enter Industry Expertise (e.g., Technology)">
+            <span id="passIndustryExpertise-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="passPreferredExperience">Preferred Experience:</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <input type="number" id="passExperienceMin" placeholder="Min Years (e.g., 3)" min="0" oninput="updatePassExperienceValue()">
+              <input type="number" id="passExperienceMax" placeholder="Max Years (e.g., 5)" min="0" oninput="updatePassExperienceValue()">
+              <label>
+                <input type="checkbox" id="passFresherCheckbox" onchange="togglePassExperienceFields()"> Fresher
+              </label>
+            </div>
+            <input type="hidden" id="passPreferredExperience" value="">
+            <span id="passPreferredExperience-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="passSkillsRequired">Skills Required:</label>
+            <input type="text" id="passSkillsRequired" placeholder="Comma separated (e.g., Python, Node.js)">
+            <span id="passSkillsRequired-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="passLanguagePreference">Language Preference:</label>
+            <input type="text" id="passLanguagePreference" placeholder="Enter Language Preference (e.g., English)">
+            <span id="passLanguagePreference-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="passGenderPreference">Gender Preference:</label>
+            <select id="passGenderPreference">
+              <option value="Any">Any</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+            <span id="passGenderPreference-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label>Salary/Stipend/Budget:</label>
+            <div id="passCompanySalaryRange">
+              <input type="number" id="passSalaryMin" placeholder="Minimum ₹ (e.g., 500000)">
+              <input type="number" id="passSalaryMax" placeholder="Maximum ₹ (e.g., 800000)">
+            </div>
+            <label for="passTimeCommitment">Time Commitment:</label>
+            <select id="passTimeCommitment" style="margin-top: 10px;" onchange="toggleCustomTimeCommitment('passTimeCommitment', 'customPassTimeCommitment', 'customPassTimeCommitment2')">
+              <option value="">Select</option>
+              <option value="/ Year">/ Year</option>
+              <option value="/ Month">/ Month</option>
+              <option value="/ Week">/ Week</option>
+              <option value="/ Day">/ Day</option>
+              <option value="/ Hour">/ Hour</option>
+              <option value="/ Project">/ Project</option>
+              <option value="Customize">Customize</option>
+            </select>
+            <input type="text" id="customPassTimeCommitment" placeholder="Enter custom time commitment (e.g., Per Milestone)" style="display: none; margin-top: 10px;">
+            <input type="text" id="customPassTimeCommitment2" placeholder="Enter additional time commitment" style="display: none; margin-top: 10px;">
+            <span id="passTimeCommitment-error" class="error-message"></span>
+            <div class="radio-group">
+              <label>
+                <input type="radio" name="passSalaryOption" id="passSalaryNegotiable" value="Negotiable" checked> Negotiable
+              </label>
+              <label>
+                <input type="radio" name="passSalaryOption" id="passSalaryNotDisclose" value="Prefer Not to Disclose"> Prefer Not to Disclose
+              </label>
+            </div>
+            <span id="passSalaryMin-error" class="error-message"></span>
+            <span id="passSalaryMax-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="passRecruiterName">Recruiter/Contact Person Name:</label>
+            <input type="text" id="passRecruiterName" placeholder="Enter Recruiter Name ">
+            <span id="passRecruiterName-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="passPhoneNumber">Phone Number:</label>
+            <input type="tel" id="passPhoneNumber" placeholder="Enter Phone Number ">
+            <span id="passPhoneNumber-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="passEmailAddress" class="required">Email Address:</label>
+            <input type="email" id="passEmailAddress" placeholder="Enter Email Address " required>
+            <span id="passEmailAddress-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <button class="btn submit-btn" onclick="generatePassWithAI()">
+              <img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" alt="Chatbot" width="30" style="vertical-align: middle;">
+              Generate with AI
+            </button>
+          </div>
+          <!-- Description Box for "Pass - For My Company" -->
+          <div id="passCompanyDescription" contenteditable="true" style="display: none; border: 1px solid #ccc; padding: 10px; min-height: 100px; margin-top: 10px;" placeholder="Generated description will appear here..."></div>
+          <p style="margin-top: 10px; color: #555;">
+            You can make changes according to your preferences or edit accordingly.
+          </p>
+          <button class="btn" onclick="downloadDescription()">Download Description</button>
+          <button class="btn" onclick="copyToClipboard()">Copy to Clipboard</button>
+        </div>
+
+        <!-- Form for "Individual" in Pass an Opportunity -->
+        <div id="passIndividualForm" class="form-container" style="display: none;">
+          <div class="form-group">
+            <label for="passIndividualIdentity" class="required">Your Identity:</label>
+            <select id="passIndividualIdentity" required onchange="toggleCustomIdentity('passIndividualIdentity', 'customPassIndividualIdentity')">
+              <option value="">Select</option>
+              <option value="Freelancer">Freelancer</option>
+              <option value="Creator">Creator</option>
+              <option value="Influencer">Influencer</option>
+              <option value="Educator/Trainer">Educator/Trainer</option>
+              <option value="Artist/Designer">Artist/Designer</option>
+              <option value="Startup Founder">Startup Founder</option>
+              <option value="Recruiter">Recruiter</option>
+              <option value="Other">Other</option>
+            </select>
+            <input type="text" id="customPassIndividualIdentity" placeholder="Enter custom identity" style="display: none; margin-top: 10px;">
+            <span id="passIndividualIdentity-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="passIndividualCompanyName" class="required">Your Name:</label>
+            <input type="text" id="passIndividualCompanyName" required>
+            <span id="passIndividualCompanyName-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="passIndividualOpportunityTitle" class="required">Opportunity Title:</label>
+            <input type="text" id="passIndividualOpportunityTitle" placeholder="Enter Opportunity Title (e.g., Senior Developer)" required>
+            <span id="passIndividualOpportunityTitle-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="passIndividualIdentityType" class="required">Opportunity Type:</label>
+            <select id="passIndividualIdentityType" required>
+              <option value="">Select</option>
+              <option>Internship (Stipend)</option>
+              <option>Internship (Unpaid)</option>
+              <option>Part time</option>
+              <option>Full time</option>
+              <option>Contract</option>
+              <option>Project (freelancers)</option>
+              <option>Project (Service companies)</option>
+            </select>
+            <span id="passIndividualIdentityType-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="passIndividualLocation">Location:</label>
+            <input type="text" id="passIndividualLocation" placeholder="Enter Location (e.g., Chennai, India)">
+            <span id="passIndividualLocation-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="passIndividualWorkMode">Work Mode:</label>
+            <select id="passIndividualWorkMode">
+              <option value="">Select</option>
+              <option value="Onsite">On-site</option>
+              <option value="Remote">Remote</option>
+              <option value="Hybrid">Hybrid</option>
+            </select>
+            <span id="passIndividualWorkMode-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="passIndividualNumberOfOpenings">No of Openings:</label>
+            <input type="number" id="passIndividualNumberOfOpenings" placeholder="Enter Number of Openings (e.g., 2)" min="1">
+            <span id="passIndividualNumberOfOpenings-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="passIndividualLastDate">Last Date to Apply:</label>
+            <input type="date" id="passIndividualLastDate" required>
+            <span id="passIndividualLastDate-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label>Education Requirements:</label>
+            <div class="checkbox-group" style="flex-wrap: wrap; gap: 10px;">
+              <label>
+                <input type="checkbox" class="pass-education-checkbox" value="10th Grade" onchange="updatePassEducationRequirements()"> 10th Grade
+              </label>
+              <label>
+                <input type="checkbox" class="pass-education-checkbox" value="12th Grade" onchange="updatePassEducationRequirements()"> 12th Grade
+              </label>
+              <label>
+                <input type="checkbox" class="pass-education-checkbox" value="Under-Graduate" onchange="updatePassEducationRequirements()"> Under-Graduate
+              </label>
+              <label>
+                <input type="checkbox" class="pass-education-checkbox" value="Post-Graduate" onchange="updatePassEducationRequirements()"> Post-Graduate
+              </label>
+              <label>
+                <input type="checkbox" class="pass-education-checkbox" value="PhD" onchange="updatePassEducationRequirements()"> PhD
+              </label>
+              <label>
+                <input type="checkbox" class="pass-education-checkbox" value="Other" onchange="updatePassEducationRequirements()"> Other
+              </label>
+              <label>
+                <input type="checkbox" id="passEducationNotNecessary" value="Not Necessary" onchange="togglePassEducationRequirements()"> Not Necessary
+              </label>
+            </div>
+            <input type="hidden" id="passEducationRequirements" value="">
+            <span id="passEducationRequirements-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="passIndustryExpertise">Industry Expertise:</label>
+            <input type="text" id="passIndustryExpertise" placeholder="Enter Industry Expertise (e.g., Technology)">
+            <span id="passIndustryExpertise-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="passPreferredExperience">Preferred Experience:</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <input type="number" id="passExperienceMin" placeholder="Min Years (e.g., 3)" min="0" oninput="updatePassExperienceValue()">
+              <input type="number" id="passExperienceMax" placeholder="Max Years (e.g., 5)" min="0" oninput="updatePassExperienceValue()">
+              <label>
+                <input type="checkbox" id="passFresherCheckbox" onchange="togglePassExperienceFields()"> Fresher
+              </label>
+            </div>
+            <input type="hidden" id="passPreferredExperience" value="">
+            <span id="passPreferredExperience-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="passIndividualSkillsRequired">Skills Required:</label>
+            <input type="text" id="passIndividualSkillsRequired" placeholder="Comma separated (e.g., Python, Node.js)">
+            <span id="passIndividualSkillsRequired-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="passLanguagePreference">Language Preference:</label>
+            <input type="text" id="passLanguagePreference" placeholder="Enter Language Preference (e.g., English)">
+            <span id="passLanguagePreference-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="passGenderPreference">Gender Preference:</label>
+            <select id="passGenderPreference">
+              <option value="Any">Any</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+            <span id="passGenderPreference-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label>Salary/Stipend/Budget:</label>
+            <div id="passIndividualSalaryRange">
+              <input type="number" id="passSalaryMin" placeholder="Minimum ₹ (e.g., 500000)">
+              <input type="number" id="passSalaryMax" placeholder="Maximum ₹ (e.g., 800000)">
+            </div>
+            <label for="passIndividualTimeCommitment">Time Commitment:</label>
+            <select id="passIndividualTimeCommitment" style="margin-top: 10px;" onchange="toggleCustomTimeCommitment('passIndividualTimeCommitment', 'customPassIndividualTimeCommitment', 'customPassIndividualTimeCommitment2')">
+              <option value="">Select</option>
+              <option value="/ Year">/ Year</option>
+              <option value="/ Month">/ Month</option>
+              <option value="/ Week">/ Week</option>
+              <option value="/ Day">/ Day</option>
+              <option value="/ Hour">/ Hour</option>
+              <option value="/ Project">/ Project</option>
+              <option value="Customize">Customize</option>
+            </select>
+            <input type="text" id="customPassIndividualTimeCommitment" placeholder="Enter custom time commitment (e.g., Per Milestone)" style="display: none; margin-top: 10px;">
+            <input type="text" id="customPassIndividualTimeCommitment2" placeholder="Enter additional time commitment" style="display: none; margin-top: 10px;">
+            <span id="passIndividualTimeCommitment-error" class="error-message"></span>
+            <div class="radio-group">
+              <label>
+                <input type="radio" name="passIndividualSalaryOption" id="passIndividualSalaryNegotiable" value="Negotiable" checked> Negotiable
+              </label>
+              <label>
+                <input type="radio" name="passIndividualSalaryOption" id="passIndividualSalaryNotDisclose" value="Prefer Not to Disclose"> Prefer Not to Disclose
+              </label>
+            </div>
+            <span id="passSalaryMin-error" class="error-message"></span>
+            <span id="passSalaryMax-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="passIndividualRecruiterName">Recruiter/Contact Person Name:</label>
+            <input type="text" id="passIndividualRecruiterName" placeholder="Enter Recruiter Name ">
+            <span id="passIndividualRecruiterName-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="passIndividualPhoneNumber">Phone Number:</label>
+            <input type="tel" id="passIndividualPhoneNumber" placeholder="Enter Phone Number" >
+            <span id="passIndividualPhoneNumber-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="passIndividualEmailAddress" class="required">Email Address:</label>
+            <input type="email" id="passIndividualEmailAddress" placeholder="Enter Email Address " required>
+            <span id="passIndividualEmailAddress-error" class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <button class="btn submit-btn" onclick="generatePassWithAI()">
+              <img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" alt="Chatbot" width="30" style="vertical-align: middle;">
+              Generate with AI
+            </button>
+          </div>
+          <!-- Description Box for "Pass - Individual" -->
+          <div id="passIndividualDescription" contenteditable="true" style="display: none; border: 1px solid #ccc; padding: 10px; min-height: 100px; margin-top: 10px;" placeholder="Generated description will appear here..."></div>
+          <p style="margin-top: 10px; color: #555;">
+            You can make changes according to your preferences or edit accordingly.
+          </p>
+          <button class="btn" onclick="downloadDescription()">Download Description</button>
+          <button class="btn" onclick="copyToClipboard()">Copy to Clipboard</button>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      .container {
+        width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .selection-buttons {
+        margin-bottom: 20px;
+      }
+      .selection-buttons button {
+        padding: 10px 20px;
+        margin-right: 10px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .selection-buttons button:hover {
+        background-color: #45a049;
+      }
+      .form-container {
+        margin-top: 20px;
+      }
+      .toolbar {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 20px;
+      }
+      .toolbar button, .toolbar select {
+        padding: 5px;
+        font-size: 14px;
+      }
+    </style>
+  </body>
+</html>
