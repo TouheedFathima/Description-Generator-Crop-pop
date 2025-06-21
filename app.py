@@ -5,8 +5,12 @@ from dotenv import load_dotenv
 from description_generator import generate_description, generate_pass_opportunity_description
 from flask_cors import CORS
 
+
+# Load environment variables
 load_dotenv()
-app = Flask(__name__)
+
+# Initialize Flask app
+app = Flask(__name__, template_folder='templates', static_folder='static')
 CORS(app)
 
 @app.route('/')
