@@ -4,7 +4,12 @@ from flask import Flask, request, jsonify, render_template
 from dotenv import load_dotenv
 from description_generator import generate_description, generate_pass_opportunity_description
 from flask_cors import CORS
+import pytesseract
+from PIL import Image
+import io
 
+# Ensure Tesseract is installed on your system and pytesseract is configured
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'  # Update path as needed
 
 # Load environment variables
 load_dotenv()
@@ -16,6 +21,19 @@ CORS(app)
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/extract-text', methods=['POST'])
+def extract_text():
+    if 'image' not in request.files:
+        return jsonify({"error": "No image file provided"}), 400
+    file = request.files['image']
+    try:
+        img = Image.open(io.BytesIO(file.read()))
+        extracted_text = pytesseract.image_to_string(img)
+        return jsonify({"text": extracted_text.strip()})
+    except Exception as e:
+        print(f"Error extracting text: {str(e)}")
+        return jsonify({"error": f"Failed to extract text: {str(e)}"}), 500
 
 @app.route('/generate-description', methods=['POST'])
 def generate_description_endpoint():

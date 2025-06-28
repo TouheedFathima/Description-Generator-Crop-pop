@@ -350,7 +350,7 @@ async function generateDescription(type) {
     }
 
     data.recruiterName = document.getElementById('recruiterName')?.value || '';
-    data.phoneNumber = document.getElementById('phoneNumber')?.value || '';
+    data.phoneNumber = document.getElementById('phoneNumber')?.value || ''; 
     data.emailAddress = document.getElementById('emailAddress')?.value || '';
 
     console.log('Data being sent for company:', data);
@@ -448,10 +448,24 @@ async function generatePassWithAI() {
   const descriptionResult = companyType === 'company' 
     ? document.getElementById('passCompanyDescription') 
     : document.getElementById('passIndividualDescription');
-  
+  const extractedTextInputId = `extractedText_${companyType === 'company' ? 'passCompany' : 'passIndividual'}`;
+  const extractedTextInput = document.getElementById(extractedTextInputId);
+
+  console.log('Generating description for companyType:', companyType);
+  console.log('Extracted Text Input ID:', extractedTextInputId);
+  console.log('Extracted Text Value:', extractedTextInput ? extractedTextInput.value : 'Input not found');
+
   descriptionResult.innerHTML = 'Generating description...';
 
-  const data = { companyType };
+  const data = { 
+    companyType,
+    wordCount: 1000  // Add default word count
+  };
+  data.extractedText = extractedTextInput ? extractedTextInput.value.trim() : '';
+
+  // Check if image upload provides sufficient context
+  const hasUploadedImage = data.extractedText && data.extractedText.length > 0;
+  console.log('Has Uploaded Image:', hasUploadedImage);
 
   if (companyType === 'company') {
     data.companyName = document.getElementById('passCompanyName').value;
@@ -495,19 +509,24 @@ async function generatePassWithAI() {
       document.getElementById('passSalaryMax-error').textContent = '';
     }
 
-    console.log('Data being sent for pass company:', data);
-
+    // Validate mandatory fields only if no image is uploaded
     const requiredFields = [
       'passCompanyName', 'passOpportunityTitle', 'passOpportunityType', 'passEmailAddress'
     ];
-    for (const field of requiredFields) {
-      const fieldValue = document.getElementById(field).value;
-      if (!fieldValue) {
-        document.getElementById(`${field}-error`).textContent = 'This field is required';
-        descriptionResult.innerHTML = 'Please fill in all required fields.';
+    let allFieldsFilled = true;
+    if (!hasUploadedImage) {
+      for (const field of requiredFields) {
+        const fieldValue = document.getElementById(field).value;
+        if (!fieldValue) {
+          document.getElementById(`${field}-error`).textContent = 'This field is required';
+          allFieldsFilled = false;
+        } else {
+          document.getElementById(`${field}-error`).textContent = '';
+        }
+      }
+      if (!allFieldsFilled) {
+        descriptionResult.innerHTML = 'Please fill in all required fields or upload a poster.';
         return;
-      } else {
-        document.getElementById(`${field}-error`).textContent = '';
       }
     }
   } else {
@@ -555,20 +574,25 @@ async function generatePassWithAI() {
       document.getElementById('passSalaryMax-error').textContent = '';
     }
 
-    console.log('Data being sent for pass individual:', data);
-
+    // Validate mandatory fields only if no image is uploaded
     const requiredFields = [
       'passIndividualCompanyName', 'passIndividualOpportunityTitle', 'passIndividualIdentity',
       'passIndividualEmailAddress'
     ];
-    for (const field of requiredFields) {
-      const fieldValue = field === 'passIndividualIdentity' ? data.opportunityType : document.getElementById(field).value;
-      if (!fieldValue) {
-        document.getElementById(`${field}-error`).textContent = field === 'passIndividualIdentity' && identitySelect === 'Other' ? 'Please specify your custom identity' : 'This field is required';
-        descriptionResult.innerHTML = 'Please fill in all required fields.';
+    let allFieldsFilled = true;
+    if (!hasUploadedImage) {
+      for (const field of requiredFields) {
+        const fieldValue = field === 'passIndividualIdentity' ? data.opportunityType : document.getElementById(field).value;
+        if (!fieldValue) {
+          document.getElementById(`${field}-error`).textContent = field === 'passIndividualIdentity' && identitySelect === 'Other' ? 'Please specify your custom identity' : 'This field is required';
+          allFieldsFilled = false;
+        } else {
+          document.getElementById(`${field}-error`).textContent = '';
+        }
+      }
+      if (!allFieldsFilled) {
+        descriptionResult.innerHTML = 'Please fill in all required fields or upload a poster.';
         return;
-      } else {
-        document.getElementById(`${field}-error`).textContent = '';
       }
     }
   }
@@ -701,4 +725,108 @@ function copyToClipboard() {
   } else {
     alert('No description box is currently visible to copy.');
   }
+}
+
+let cropper;
+
+function openCropper(type) {
+  const fileInput = type === 'passCompany' ? document.getElementById('passPosterUpload') : document.getElementById('passIndividualPosterUpload');
+  const modal = document.getElementById('cropperModal');
+  const image = document.getElementById('cropperImage');
+  const container = document.getElementById('cropperContainer');
+  const descriptionBox = type === 'passCompany' ? document.getElementById('passCompanyDescription') : document.getElementById('passIndividualDescription');
+
+  if (fileInput.files && fileInput.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      image.src = e.target.result;
+      modal.style.display = 'block';
+      container.style.display = 'block';
+
+      if (cropper) {
+        cropper.destroy();
+      }
+
+      image.onload = function() {
+        cropper = new Cropper(image, {
+          aspectRatio: NaN, // Freeform cropping
+          viewMode: 1,
+          autoCropArea: 1,
+          movable: true,
+          rotatable: false,
+          scalable: false,
+          zoomable: true,
+          background: false
+        });
+      };
+    };
+    reader.readAsDataURL(fileInput.files[0]);
+    // Ensure description box remains visible
+    if (descriptionBox) descriptionBox.style.display = 'block';
+  }
+}
+async function cropImage() {
+  if (cropper) {
+    const canvas = cropper.getCroppedCanvas();
+    const modal = document.getElementById('cropperModal');
+    const companyType = document.getElementById('passCompanyForm').style.display === 'block' ? 'passCompany' : 'passIndividual';
+    const descriptionBox = companyType === 'passCompany' ? document.getElementById('passCompanyDescription') : document.getElementById('passIndividualDescription');
+    const extractedTextInput = document.getElementById(`extractedText_${companyType}`);
+
+    if (!canvas) {
+      console.error('No cropped canvas available');
+      return;
+    }
+
+    canvas.toBlob(async (blob) => {
+      if (!blob) {
+        console.error('Failed to convert canvas to blob');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('image', blob, 'cropped-image.png');
+      console.log('Sending image to /extract-text:', blob.size, 'bytes');
+
+      try {
+        const response = await fetch('/extract-text', {
+          method: 'POST',
+          body: formData
+        });
+
+        console.log('Server response status:', response.status);
+        if (response.ok) {
+          const result = await response.json();
+          const extractedText = result.text || '';
+          extractedTextInput.value = extractedText; // Update the hidden input
+          console.log('Updated extractedTextInput:', extractedTextInput.value); // Debug log
+          if (descriptionBox && extractedText) {
+            descriptionBox.innerHTML = extractedText; // Preview the text
+          }
+          console.log('Extracted text:', extractedText);
+          // Trigger generation automatically
+          generatePassWithAI();
+        } else {
+          const errorText = await response.text();
+          console.error('Text extraction failed:', response.status, errorText);
+          descriptionBox.innerHTML = 'Failed to extract text from image.';
+        }
+      } catch (error) {
+        console.error('Error during fetch:', error.message);
+        descriptionBox.innerHTML = `An error occurred: ${error.message}`;
+      }
+
+      modal.style.display = 'none';
+      cropper.destroy();
+      cropper = null;
+    }, 'image/png');
+  }
+}
+function closeCropper() {
+  const modal = document.getElementById('cropperModal');
+  if (cropper) {
+    cropper.destroy();
+    cropper = null;
+  }
+  modal.style.display = 'none';
 }

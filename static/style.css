@@ -259,4 +259,37 @@
         font-weight: normal;
         margin: 0;
       }
-  
+        .container {
+        width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .selection-buttons {
+        margin-bottom: 20px;
+      }
+      .selection-buttons button {
+        padding: 10px 20px;
+        margin-right: 10px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .selection-buttons button:hover {
+        background-color: #45a049;
+      }
+      .form-container {
+        margin-top: 20px;
+      }
+      .toolbar {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 20px;
+      }
+      .toolbar button, .toolbar select {
+        padding: 5px;
+        font-size: 14px;
+      }
+
+      

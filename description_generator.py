@@ -23,7 +23,7 @@ def clean_html_spacing(html):
     return cleaned_html
 
 def generate_description(data):
-    word_count = data.get("wordCount", 1000) or 1000
+    wordCount = data.get("wordCount", 1000) or 1000
     company_type = data.get("companyType", "company")
     # Use the correct field name based on companyType
     post_type = (data.get("opportunityType", "") or "") if company_type == "company" else (data.get("postType", "") or "")
@@ -113,7 +113,7 @@ Format:
 <b>Job Type:</b> Full-Time <br><br> 
 
 <b>About the Company:</b>  
-[Brief intro to the company, culture, and mission.]
+[Brief intro to the company, culture, and mission.]<br>
 
 <b>Roles & Responsibilities:</b>  
 <ul>
@@ -714,7 +714,7 @@ Format:
     {format_instruction}
 
     Instructions:
-    - Use only <b>, not ** for bold.
+    - Use only <b>, not ** for bold.or else ill fail you
     - Your response should be suitable for direct copy-pasting into a web page or email client that supports HTML formatting. Use only valid HTML tags.
     - Use bullet points where appropriate.
     - For all <ul> lists, ensure there are NO extra line breaks or spaces between <li> elements.
@@ -723,7 +723,7 @@ Format:
     - Use the company name naturally — don’t include 'companyType'.
     - Strictly follow the format provided above. Do NOT add extra fields or sections.
     - Within paragraph sections, bold the important words listed above using <b> tags. Do NOT bold words within <ul> lists.
-    - Ensure the response is at least {word_count} words. Expand each section thoughtfully with relevant details.
+    - Ensure the response is at least {wordCount} words. Expand each section thoughtfully with relevant details.
     - Make the tone fit the nature of the role (e.g., formal for full-time, friendly for internships).
     - If any field is missing or empty, use generic placeholders (e.g., 'Not specified' for location, 'Competitive compensation' for package).
     -DO NOT MENTION THIS IN DESCRIPTION "Note: The output is ready to copy-paste into a web page or email client that supports HTML formatting. I've followed the provided format and instructions, and the response is at least 1000 words".
@@ -735,7 +735,7 @@ Format:
     return cleaned_response
 
 def generate_pass_opportunity_description(data):
-    word_count = data.get("wordCount", 1000) or 1000
+    wordCount = data.get("wordCount", 1000) or 1000
     company_type = data.get("companyType", "company")
     company_name = (data.get("companyName", "") or "Individual").strip()
     opportunity_title = html.escape(data.get("opportunityTitle", "") or "Untitled Opportunity")
@@ -744,531 +744,87 @@ def generate_pass_opportunity_description(data):
     if isinstance(skills, str):
         skills = [s.strip() for s in skills.split(",") if s.strip()]
 
-    # Combine important words for bolding (remove duplicates)
-    important_words = list(set([company_name] + skills))
+    extracted_text = data.get("extractedText", "").strip() or "No additional context from image"
+    if extracted_text:
+        print(f"Using extracted text: {extracted_text[:1000]}...")
+
+    important_words = list(set([company_name] + skills + [word.strip() for word in extracted_text.split() if word.strip()]))
     important_words = [word for word in important_words if word]
 
-    # Extract common fields
     location = data.get("location", "") or "Not specified"
     number_of_openings = data.get("numberOfOpenings", 1) if data.get("numberOfOpenings") and data.get("numberOfOpenings") > 0 else 1
     last_date = data.get("lastDate", "") or "Not specified"
-
-    # Fields specific to "For My Company"
     work_mode = data.get("workMode", "") or "Not specified"
     time_commitment = data.get("timeCommitment", "") or "Not specified"
 
-    # LLM setup
     llm = ChatGroq(
         temperature=0.7,
         groq_api_key=os.getenv("GROQ_API_KEY"),
         model_name="llama3-70b-8192"
     )
 
-    # Common prompt data
     prompt_data = {
         "companyName": company_name,
         "opportunityTitle": opportunity_title,
         "opportunityType": opportunity_type,
         "location": location,
-        "numberOfOpenings": number_of_openings,
+        "number_of_openings": number_of_openings,
         "lastDate": last_date,
         "skillsRequired": ", ".join(skills) if skills else "Not specified",
         "important_words": ", ".join(important_words) if important_words else "None",
         "workMode": work_mode,
-        "timeCommitment": time_commitment
+        "timeCommitment": time_commitment,
+        "extractedText": extracted_text,
+        "wordCount": wordCount
     }
 
-    # Define formats based on companyType and opportunityType for "Pass an Opportunity"
-    if company_type == "company":
-        # "For My Company" formats
-        if not opportunity_type:
-            intro_instruction = "Generate a generic job description for an opportunity being passed to potential candidates. The tone should be professional and highlight why this opportunity is worth considering."
-            format_instruction = """
-Format:
-<b>Company:</b> {companyName}<br>
-<b>Location:</b> {location}<br>
-<b>Work Mode:</b> {workMode}<br>  
-<b>Opportunity:</b> {opportunityTitle}<br><br> 
-
-<b>About the Opportunity:</b>  
-[Brief intro to the opportunity and why it's unique.]
-
-<b>Responsibilities:</b>  
-<ul>
-    <li>[List of duties.]</li>
-</ul>
-
-<b>Required Skills:</b>  
-<ul>
-    <li>[List of skills.]</li>
-</ul>
-"""
-        elif opportunity_type == "Full time":
-            intro_instruction = "Generate a professional full-time job description for an opportunity being passed to potential candidates. The tone should be formal and emphasize the company's reputation and the role's impact."
-            format_instruction = """
-Format:
-<b>Company:</b> {companyName}<br>  
-<b>Location:</b> {location}<br>
-<b>Work Mode:</b> {workMode}<br> 
-<b>Job Type:</b> Full-Time <br><br>
-
-<b>About the Company:</b>  
-[Brief intro to the company and its reputation.]
-
-<b>About the Role:</b>  
-[Details about the role and its impact.]
-
-<b>Key Responsibilities:</b>  
-<ul>
-    <li>[List of job duties.]</li>
-</ul>
-
-<b>Required Skills:</b>  
-<ul>
-    <li>[List of skills.]</li>
-</ul>
-
-<b>Benefits:</b>  
-<ul>
-    <li>[Perks like health insurance, professional development.]</li>
-</ul>
-"""
-        elif opportunity_type == "Part time":
-            intro_instruction = "Generate a clear and professional part-time job description for an opportunity being passed to potential candidates. Highlight the role's flexibility and the company's support for work-life balance."
-            format_instruction = """
-Format:
-<b>Company:</b> {companyName}<br>
-<b>Location:</b> {location}<br>
-<b>Work Mode:</b> {workMode}<br>
-<b>Job Type:</b> Part-Time <br><br>
-
-<b>About the Role:</b>  
-[Brief about the role and its flexibility.]
-
-<b>Key Responsibilities:</b>  
-<ul>
-    <li>[List of duties.]</li>
-</ul>
-
-<b>Required Skills:</b>  
-<ul>
-    <li>[List key skills.]</li>
-</ul>
-
-<b>Perks:</b>  
-<ul>
-    <li>[Highlight flexibility, work-life balance.]</li>
-</ul>
-"""
-        elif opportunity_type == "Internship (Stipend)":
-            intro_instruction = "Create a paid internship opportunity for passing to potential candidates. Emphasize the learning experience, mentorship, and the stipend, with a tone that is encouraging and professional."
-            format_instruction = """
-Format: 
-<b>Company:</b> {companyName}<br>
-<b>Location:</b> {location}<br>
-<b>Work Mode:</b> {workMode}<br>
-<b>Internship Type:</b> Paid Internship <br><br>
-
-<b>About the Company:</b>  
-[Brief overview.]
-
-<b>Internship Opportunity:</b>  
-[What interns will work on.]
-
-<b>Learning Benefits:</b>  
-<ul>
-    <li>[List skills interns will gain.]</li>
-</ul>
-
-<b>Requirements:</b>  
-<ul>
-    <li>[Eligibility, background, or tools.]</li>
-</ul>
-
-<b>Key Responsibilities:</b>  
-<ul>
-    <li>[List of duties.]</li>
-</ul>
-"""
-        elif opportunity_type == "Internship (Unpaid)":
-            intro_instruction = "Create an unpaid internship opportunity for passing to potential candidates. Emphasize the learning experience, networking opportunities, and non-monetary benefits, with a tone that is encouraging and professional."
-            format_instruction = """
-Format: 
-<b>Company:</b> {companyName}<br>
-<b>Location:</b> {location}<br>
-<b>Work Mode:</b> {workMode}<br>
-<b>Internship Type:</b> Unpaid Internship <br><br> 
-
-<b>About the Company:</b>  
-[Brief overview.]
-
-<b>Internship Opportunity:</b>  
-[What interns will work on.]
-
-<b>Learning Benefits:</b>  
-<ul>
-    <li>[List skills interns will gain.]</li>
-</ul>
-
-<b>Requirements:</b>  
-<ul>
-    <li>[Eligibility, background, or tools.]</li>
-</ul>
-
-<b>Key Responsibilities:</b>  
-<ul>
-    <li>[List of duties.]</li>
-</ul>
-
-<b>Non-Monetary Benefits:</b>  
-<ul>
-    <li>[Highlight mentorship, networking, etc.]</li>
-</ul>
-"""
-        elif opportunity_type == "Contract":
-            intro_instruction = "Generate a professional contract opportunity for passing to potential candidates. Focus on the project's deliverables and why it's a valuable opportunity for short-term collaborators."
-            format_instruction = """
-Format:
-<b>Contract Opportunity:</b> {opportunityTitle}<br>  
-<b>Location:</b> {location}<br>
-<b>Work Mode:</b> {workMode}<br>
-<b>Type:</b> Contract-Based <br><br>
-
-<b>Overview:</b>  
-[Short intro to the project.]
-
-<b>Responsibilities:</b>  
-<ul>
-    <li>[List of deliverables.]</li>
-</ul>
-
-<b>Required Skills:</b>  
-<ul>
-    <li>[Tools, skills, experience needed.]</li>
-</ul>
-"""
-        elif opportunity_type == "Project (freelancers)":
-            intro_instruction = "Generate a project collaboration opportunity for freelancers to be passed to potential candidates. Focus on the project's goals, required skills, and why it's a great opportunity for independent professionals."
-            format_instruction = """
-Format:
-<b>Company Name:</b> {companyName}<br> 
-<b>Location:</b> {location}<br>
-<b>Work Mode:</b> {workMode}<br><br> 
-
-<b>Project Opportunity:</b>  
-[Summary of the project and its goals.]
-
-<b>Who We're Looking For:</b>  
-[Type of freelancers with specific skills.]
-
-<b>Required Skills:</b>  
-<ul>
-    <li>[List of technical/non-technical skills.]</li>
-</ul>
-"""
-        elif opportunity_type == "Project (Service companies)":
-            intro_instruction = "Generate a project collaboration opportunity for service companies to be passed to potential candidates. Focus on the project's scale, partnership potential, and required expertise, with a formal and professional tone."
-            format_instruction = """
-Format:
-<b>Company Name:</b> {companyName}<br>  
-<b>Location:</b> {location}<br>
-<b>Work Mode:</b> {workMode}<br><br>
-
-<b>Project Opportunity:</b>  
-[Summary of the project and its goals.]
-
-<b>Who We're Looking For:</b>  
-[Type of service companies with specific expertise.]
-
-<b>Required Expertise:</b>  
-<ul>
-    <li>[List of technical/non-technical expertise.]</li>
-</ul>
-
-<b>Collaboration Scope:</b>  
-[Details on the collaboration.]
-"""
-        else:
-            intro_instruction = "Generate a generic job description for an opportunity being passed to potential candidates. The tone should be professional and highlight why this opportunity is worth considering."
-            format_instruction = """
-Format:
-<b>Company:</b> {companyName}<br>  
-<b>Location:</b> {location}<br>  
-<b>Work Mode:</b> {workMode}<br> 
-<b>Opportunity:</b> {opportunityTitle}<br><br>
-
-<b>About the Opportunity:</b>  
-[Brief intro to the opportunity and why it's unique.]
-
-<b>Responsibilities:</b>  
-<ul>
-    <li>[List of duties.]</li>
-</ul>
-
-<b>Required Skills:</b>  
-<ul>
-    <li>[List of skills.]</li>
-</ul>
-"""
-    else:
-        # "Individual" formats
-        if not opportunity_type:
-            intro_instruction = "Generate a generic opportunity description for passing by an individual. The tone should be professional yet approachable, highlighting the opportunity's value."
-            format_instruction = """
-Format:
-<b>Posted By:</b> {companyName}<br>  
-<b>Location:</b> {location}<br>
-<b>Opportunity:</b> {opportunityTitle}<br> 
-
-<b>About the Opportunity:</b>  
-[Brief intro to the opportunity and why it's unique.]
-
-<b>Responsibilities:</b>  
-<ul>
-    <li>[List of duties.]</li>
-</ul>
-
-<b>Required Skills:</b>  
-<ul>
-    <li>[List of skills.]</li>
-</ul>
-"""
-        elif opportunity_type == "Full time":
-            intro_instruction = "Generate a full-time opportunity description for passing by an individual. The tone should be approachable yet professional, emphasizing the individual's passion and the role's potential."
-            format_instruction = """
-Format:
-<b>Posted By:</b> {companyName}<br>  
-<b>Location:</b> {location}<br>
-<b>Job Type:</b> Full-Time <br><br> 
-
-<b>About Me:</b>  
-[Brief intro to the individual and their passion.]
-
-<b>About the Role:</b>  
-[Details about the role and its potential.]
-
-<b>Key Responsibilities:</b>  
-<ul>
-    <li>[List of job duties.]</li>
-</ul>
-
-<b>Required Skills:</b>  
-<ul>
-    <li>[List of skills.]</li>
-</ul>
-
-<b>Benefits:</b>  
-<ul>
-    <li>[Perks like collaboration opportunities.]</li>
-</ul>
-"""
-        elif opportunity_type == "Part time":
-            intro_instruction = "Generate a part-time opportunity description for passing by an individual. Highlight the role's flexibility and the individual's support, with a friendly yet professional tone."
-            format_instruction = """
-Format:
-<b>Posted By:</b> {companyName}<br>  
-<b>Location:</b> {location}<br>
-<b>Job Type:</b> Part-Time <br><br>
-
-<b>About the Role:</b>  
-[Brief about the role and its flexibility.]
-
-<b>Key Responsibilities:</b>  
-<ul>
-    <li>[List of duties.]</li>
-</ul>
-
-<b>Required Skills:</b>  
-<ul>
-    <li>[List key skills.]</li>
-</ul>
-
-<b>Perks:</b>  
-<ul>
-    <li>[Highlight flexibility, collaboration opportunities.]</li>
-</ul>
-"""
-        elif opportunity_type == "Internship (Stipend)":
-            intro_instruction = "Create a paid internship opportunity for passing by an individual. Emphasize learning opportunities and the stipend, with an encouraging and professional tone."
-            format_instruction = """
-Format: 
-<b>Posted By:</b> {companyName}<br>  
-<b>Location:</b> {location}<br>
-<b>Internship Type:</b> Paid Internship <br><br>
-
-<b>About Me:</b>  
-[Brief overview of the individual.]
-
-<b>Internship Opportunity:</b>  
-[What interns will work on.]
-
-<b>Learning Benefits:</b>  
-<ul>
-    <li>[List skills interns will gain.]</li>
-</ul>
-
-<b>Requirements:</b>  
-<ul>
-    <li>[Eligibility, background, or tools.]</li>
-</ul>
-
-<b>Key Responsibilities:</b>  
-<ul>
-    <li>[List of duties.]</li>
-</ul>
-"""
-        elif opportunity_type == "Internship (Unpaid)":
-            intro_instruction = "Create an unpaid internship opportunity for passing by an individual. Emphasize learning opportunities and non-monetary benefits, with an encouraging and professional tone."
-            format_instruction = """
-Format: 
-<b>Posted By:</b> {companyName}<br>  
-<b>Location:</b> {location}<br> 
-<b>Internship Type:</b> Unpaid Internship <br><br>
-
-<b>About Me:</b>  
-[Brief overview of the individual.]
-
-<b>Internship Opportunity:</b>  
-[What interns will work on.]
-
-<b>Learning Benefits:</b>  
-<ul>
-    <li>[List skills interns will gain.]</li>
-</ul>
-
-<b>Requirements:</b>  
-<ul>
-    <li>[Eligibility, background, or tools.]</li>
-</ul>
-
-<b>Key Responsibilities:</b>  
-<ul>
-    <li>[List of duties.]</li>
-</ul>
-
-<b>Non-Monetary Benefits:</b>  
-<ul>
-    <li>[Highlight networking, certificates, etc.]</li>
-</ul>
-"""
-        elif opportunity_type == "Contract":
-            intro_instruction = "Generate a contract opportunity for passing by an individual. Focus on the project's deliverables and value for short-term collaborators, with a professional tone."
-            format_instruction = """
-Format:
-<b>Contract Opportunity:</b> {opportunityTitle}<br> 
-<b>Location:</b> {location}<br>
-<b>Type:</b> Contract-Based <br><br>
-
-<b>Overview:</b>  
-[Short intro to the project.]
-
-<b>Responsibilities:</b>  
-<ul>
-    <li>[List of deliverables.]</li>
-</ul>
-
-<b>Required Skills:</b>  
-<ul>
-    <li>[Tools, skills, experience needed.]</li>
-</ul>
-"""
-        elif opportunity_type == "Project (freelancers)":
-            intro_instruction = "Generate a project collaboration opportunity for freelancers to be passed by an individual. Focus on the project's goals, required skills, and appeal to independent professionals."
-            format_instruction = """
-Format:
-<b>Posted By:</b> {companyName}<br> 
-<b>Location:</b> {location}<br>
-
-<b>Project Opportunity:</b>  
-[Summary of the project and its goals.]
-
-<b>Who I'm Looking For:</b>  
-[Type of freelancers with specific skills.]
-
-<b>Required Skills:</b>  
-<ul>
-    <li>[List of technical/non-technical skills.]</li>
-</ul>
-"""
-        elif opportunity_type == "Project (Service companies)":
-            intro_instruction = "Generate a project collaboration opportunity for service companies to be passed by an individual. Focus on the project's scale, partnership potential, and required expertise, with a formal tone."
-            format_instruction = """
-Format:
-<b>Posted By:</b> {companyName}<br>  
-<b>Location:</b> {location}<br><br> 
-
-<b>Project Opportunity:</b>  
-[Summary of the project and its goals.]
-
-<b>Who I'm Looking For:</b>  
-[Type of service companies with specific expertise.]
-
-<b>Required Expertise:</b>  
-<ul>
-    <li>[List of technical/non-technical expertise.]</li>
-</ul>
-
-<b>Collaboration Scope:</b>  
-[Details on the collaboration.]
-"""
-        else:
-            intro_instruction = "Generate a generic opportunity description for passing by an individual. The tone should be professional yet approachable, highlighting the opportunity's value."
-            format_instruction = """
-Format:
-<b>Posted By:</b> {companyName}<br>  
-<b>Location:</b> {location}<br>  
-<b>Opportunity:</b> {opportunityTitle}<br><br> 
-
-<b>About the Opportunity:</b>  
-[Brief intro to the opportunity and why it's unique.]
-
-<b>Responsibilities:</b>  
-<ul>
-    <li>[List of duties.]</li>
-</ul>
-
-<b>Required Skills:</b>  
-<ul>
-    <li>[List of skills.]</li>
-</ul>
-"""
-
-    # Full prompt with dynamic instructions
-    prompt = ChatPromptTemplate.from_template(f"""
-    {intro_instruction}
-
-    Generate a professional opportunity description for passing to potential candidates using the following details:
-
-    - Company Name: {{companyName}}
-    - Opportunity Title: {{opportunityTitle}}
-    - Opportunity Type: {{opportunityType}}
-    - Location: {{location}}
-    - Work Mode: {{workMode}}
-    - Number of Openings: {{numberOfOpenings}}
-    - Last Date: {{lastDate}}
-    - Skills Required: {{skillsRequired}}
-    - Time Commitment: {{timeCommitment}}
-
-    Important words to bold: {{important_words}}
-
-    {format_instruction}
+    prompt = ChatPromptTemplate.from_template("""
+    You are tasked with generating a professional opportunity description based on the provided details and an extracted text from an image. Use the extracted text as the primary source to infer key details such as company name, opportunity title, opportunity type (e.g., Full time, Part time, Contract, Internship, Project), location, skills, and any other relevant information. Supplement these inferences with the provided form data where available, but prioritize the extracted text for context. The tone should adapt to the inferred opportunity type:
+    - Formal and structured for Full time or Contract.
+    - Encouraging and learning-focused for Internships.
+    - Flexible and collaborative for Part time or Projects.
+
+    Details provided:
+    - Extracted Text: {extractedText}
+    - Company Name: {companyName} (use if not inferred from extracted text)
+    - Opportunity Title: {opportunityTitle} (use if not inferred)
+    - Opportunity Type: {opportunityType} (use if not inferred)
+    - Location: {location} (use if not inferred)
+    - Work Mode: {workMode} (use if not inferred)
+    - Number of Openings: {number_of_openings}
+    - Last Date: {lastDate} (use if not inferred)
+    - Skills Required: {skillsRequired} (use if not inferred)
+    - Time Commitment: {timeCommitment} (use if not inferred)
+
+    Important words to bold: {important_words}
 
     Instructions:
-    - Use only <b>, not ** for bold.
-    - Your response should be suitable for direct copy-pasting into a web page or email client that supports HTML formatting. Use only valid HTML tags.
-    - Use bullet points where appropriate.
-    - For all <ul> lists, ensure there are NO extra line breaks or spaces between <li> elements.
+    - First, analyze the {extractedText} to identify and extract key fields (e.g., company name, role, skills, location). Use these as the foundation for the description.
+    - Fill in any missing details with the provided form data or use generic placeholders (e.g., 'Not specified') if neither is available.
+    - Generate an HTML-formatted description with the following structure:
+      - Use <b>Company:</b> {companyName}<br> for the company name.
+      - Use <b>Opportunity Title:</b> {opportunityTitle}<br> for the title.
+      - Use <b>Opportunity Type:</b> {opportunityType}<br> for the type.
+      - Use <b>Location:</b> {location}<br> for the location.
+      - Use <b>Work Mode:</b> {workMode}<br> for the work mode.
+      - Use <b>Number of Openings:</b> {number_of_openings}<br> for openings.
+      - Use <b>Last Date:</b> {lastDate}<br> for the deadline.
+      - Use <b>About the Opportunity:</b><br> [paragraph with bolded important words] followed by two <br> tags.
+      - Use <b>Key Responsibilities:</b><br><ul><li>[list items]</li></ul> followed by two <br> tags.
+      - Use <b>Required Skills:</b><br><ul><li>[list items]</li></ul> followed by two <br> tags.
+      - Use <b>Benefits:</b><br><ul><li>[list items]</li></ul> for Full time roles, followed by two <br> tags.
+      - Use <b>Learning Benefits:</b><br><ul><li>[list items]</li></ul> for Internships, followed by two <br> tags.
+      - Use <b>Perks:</b><br><ul><li>[list items]</li></ul> for Part time roles, followed by two <br> tags.
+      - Use <b>Deliverables:</b><br><ul><li>[list items]</li></ul> for Contract roles, followed by two <br> tags.
+      - Use <b>Project Goals:</b><br><ul><li>[list items]</li></ul> for Project roles, followed by two <br> tags.
     - Ensure exactly two <br> tags between sections for clean spacing.
-    - Output should be ready to copy-paste into LinkedIn/email without editing.
-    - Use the company name naturally — don’t include 'companyType'.
-    - Strictly follow the format provided above. Do NOT add extra fields or sections.
-    - Within paragraph sections, bold the important words listed above using <b> tags. Do NOT bold words within <ul> lists.
-    - Ensure the response is at least {word_count} words. Expand each section thoughtfully with relevant details.
-    - Make the tone fit the nature of the opportunity (e.g., formal for full-time, friendly for internships).
-    - If any field is missing or empty, use generic placeholders (e.g., 'Not specified' for location).
+    - Use only <b> tags, not **, for bolding important words within paragraphs (e.g., <b>Manvian</b>).
+    - Do NOT bold words within <ul> lists.
+    - Ensure the response is at least {wordCount} words. Expand each section thoughtfully with relevant details based on the {extractedText} and form data.
+    - Infer the opportunity type from {extractedText} if not provided or unclear, and adjust the tone and section accordingly.
+    - Avoid mentioning the instructions or the process of inference in the output.
     """)
 
     chain = LLMChain(llm=llm, prompt=prompt)
     response = chain.run(prompt_data)
-    cleaned_response = clean_html_spacing(response)
-    return cleaned_response
+    return response
