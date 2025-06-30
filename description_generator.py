@@ -366,20 +366,20 @@ Format:
 Format:
 <b>Posted By:</b> {companyName}<br>   
 <b>Location:</b> {location}<br>  
-<b>Job Type:</b> Full-Time  
+<b>Job Type:</b> Full-Time<br>
 <b>Application Deadline:</b> {lastDate}<br>  
 <b>Vacancies:</b> {vacancy}<br><br>  
 
-<b>About Me:</b>  
+<b>About Me:</b><br>
 [Brief intro to the individual, their vision, and passion for the project.]
 
 <b>About the Role:</b>  
-[Details about the role, its impact, and long-term potential.]
+[Details about the role, its impact, and long-term potential.]<br>
 
 <b>Key Responsibilities:</b>  
 <ul>
     <li>[List of job duties relevant to a full-time role.]</li>
-</ul>
+</ul><br>
 
 <b>Required Skills:</b>  
 <ul>
@@ -726,6 +726,7 @@ Format:
     - Ensure the response is at least {wordCount} words. Expand each section thoughtfully with relevant details.
     - Make the tone fit the nature of the role (e.g., formal for full-time, friendly for internships).
     - If any field is missing or empty, use generic placeholders (e.g., 'Not specified' for location, 'Competitive compensation' for package).
+    -Do NOT MENTION ANY NOTES at the end of description.
     -DO NOT MENTION THIS IN DESCRIPTION "Note: The output is ready to copy-paste into a web page or email client that supports HTML formatting. I've followed the provided format and instructions, and the response is at least 1000 words".
     """)
 
@@ -823,6 +824,7 @@ def generate_pass_opportunity_description(data):
     - Ensure the response is at least {wordCount} words. Expand each section thoughtfully with relevant details based on the {extractedText} and form data.
     - Infer the opportunity type from {extractedText} if not provided or unclear, and adjust the tone and section accordingly.
     - Avoid mentioning the instructions or the process of inference in the output.
+    -Do NOT MENTION ANY NOTES at the end of description.                                           
     """)
 
     chain = LLMChain(llm=llm, prompt=prompt)

@@ -319,25 +319,25 @@ async function generateDescription(type) {
   let data = { companyType: type };
 
   if (type === 'company') {
-    data.companyName = document.getElementById('companyName').value;
-    data.opportunityTitle = document.getElementById('opportunityTitle').value;
-    data.opportunityType = document.getElementById('opportunityType').value;
-    data.workDuration = document.getElementById('workDuration').value;
-    data.location = document.getElementById('location').value;
-    data.workMode = document.getElementById('workMode').value;
+    data.companyName = document.getElementById('companyName').value || '';
+    data.opportunityTitle = document.getElementById('opportunityTitle').value || '';
+    data.opportunityType = document.getElementById('opportunityType').value || '';
+    data.workDuration = document.getElementById('workDuration').value || '';
+    data.location = document.getElementById('location').value || '';
+    data.workMode = document.getElementById('workMode').value || '';
     data.numberOfOpenings = parseInt(document.getElementById('numberOfOpenings').value) || 1;
-    data.lastDate = document.getElementById('lastDate').value;
-    data.educationRequirements = document.getElementById('educationRequirements').value;
-    data.industryExpertise = document.getElementById('industryExpertise').value;
-    data.preferredExperience = document.getElementById('preferredExperience').value;
-    data.skillsRequired = document.getElementById('skillsRequired').value;
-    data.languagePreference = document.getElementById('languagePreference').value;
-    data.genderPreference = document.getElementById('genderPreference').value;
+    data.lastDate = document.getElementById('lastDate').value || '';
+    data.educationRequirements = document.getElementById('educationRequirements').value || '';
+    data.industryExpertise = document.getElementById('industryExpertise').value || '';
+    data.preferredExperience = document.getElementById('preferredExperience').value || '';
+    data.skillsRequired = document.getElementById('skillsRequired').value || '';
+    data.languagePreference = document.getElementById('languagePreference').value || '';
+    data.genderPreference = document.getElementById('genderPreference').value || '';
     data.salaryMin = parseInt(document.getElementById('salaryMin').value) || 0;
     data.salaryMax = parseInt(document.getElementById('salaryMax').value) || 0;
     const timeCommitmentSelect = document.getElementById('timeCommitment').value;
     data.timeCommitment = timeCommitmentSelect === 'Customize' 
-      ? document.getElementById('customTimeCommitment').value 
+      ? document.getElementById('customTimeCommitment').value || ''
       : timeCommitmentSelect;
 
     const salaryOptionRadios = document.getElementsByName('salaryOption');
@@ -356,7 +356,6 @@ async function generateDescription(type) {
     console.log('Data being sent for company:', data);
 
     const requiredFields = [
-      'companyName', 'opportunityTitle', 'opportunityType',
       'location', 'workMode', 'numberOfOpenings', 'lastDate', 'skillsRequired', 'timeCommitment'
     ];
     for (const field of requiredFields) {
@@ -370,7 +369,7 @@ async function generateDescription(type) {
     }
   } else if (type === 'individual') {
     data.companyName = document.getElementById('individualCompanyName').value || 'Individual';
-    data.postType = document.getElementById('individualPostType').value;
+    data.postType = document.getElementById('individualPostType').value || '';
     const identitySelect = document.getElementById('individualIdentity').value;
     data.opportunityType = identitySelect === 'Other' 
       ? document.getElementById('customIndividualIdentity').value 
@@ -378,20 +377,20 @@ async function generateDescription(type) {
     const fresherCheckbox = document.getElementById('individualFresherCheckbox').checked;
     data.eligibility = fresherCheckbox ? 'Freshers' : document.getElementById('individualPreferredExperience').value || 'Not specified';
     data.location = document.getElementById('individualLocation').value || 'Not specified';
-    data.workMode = document.getElementById('individualWorkMode').value;
-    data.workDuration = document.getElementById('individualWorkDuration').value;
-    data.title = document.getElementById('individualTitle').value;
+    data.workMode = document.getElementById('individualWorkMode').value || '';
+    data.workDuration = document.getElementById('individualWorkDuration').value || '';
+    data.title = document.getElementById('individualTitle').value || '';
     data.package = document.getElementById('individualPackage')?.value || `${document.getElementById('individualSalaryFrom').value || 0} - ${document.getElementById('individualSalaryTo').value || 0}`;
-    data.lastDate = document.getElementById('individualLastDate').value;
+    data.lastDate = document.getElementById('individualLastDate').value || '';
     data.vacancy = parseInt(document.getElementById('individualVacancy').value) || 1;
-    data.skills = document.getElementById('individualSkills').value;
+    data.skills = document.getElementById('individualSkills').value || '';
     data.keywords = document.getElementById('individualKeywords')?.value || '';
-    data.industryExpertise = document.getElementById('individualIndustryExpertise').value;
-    data.languagePreference = document.getElementById('individualLanguagePreference').value;
-    data.genderPreference = document.getElementById('individualGenderPreference').value;
+    data.industryExpertise = document.getElementById('individualIndustryExpertise').value || '';
+    data.languagePreference = document.getElementById('individualLanguagePreference').value || '';
+    data.genderPreference = document.getElementById('individualGenderPreference').value || '';
     const timeCommitmentSelect = document.getElementById('individualTimeCommitment').value;
     data.timeCommitment = timeCommitmentSelect === 'Customize' 
-      ? document.getElementById('customIndividualTimeCommitment').value 
+      ? document.getElementById('customIndividualTimeCommitment').value || ''
       : timeCommitmentSelect;
 
     const salaryOptionRadios = document.getElementsByName('individualSalaryOption');
@@ -406,9 +405,7 @@ async function generateDescription(type) {
     console.log('Data being sent for individual:', data);
 
     const requiredFields = [
-      'individualCompanyName', 'individualPostType', 'individualIdentity',
-      'individualLocation', 'individualWorkMode', 'individualTitle', 'individualLastDate',
-      'individualVacancy', 'individualSkills', 'individualTimeCommitment'
+      'individualIdentity'
     ];
     for (const field of requiredFields) {
       const fieldValue = field === 'individualIdentity' ? data.opportunityType : document.getElementById(field).value;
@@ -459,18 +456,17 @@ async function generatePassWithAI() {
 
   const data = { 
     companyType,
-    wordCount: 1000  // Add default word count
+    wordCount: 1000  
   };
   data.extractedText = extractedTextInput ? extractedTextInput.value.trim() : '';
 
-  // Check if image upload provides sufficient context
   const hasUploadedImage = data.extractedText && data.extractedText.length > 0;
   console.log('Has Uploaded Image:', hasUploadedImage);
 
   if (companyType === 'company') {
-    data.companyName = document.getElementById('passCompanyName').value;
-    data.opportunityTitle = document.getElementById('passOpportunityTitle').value;
-    data.opportunityType = document.getElementById('passOpportunityType').value;
+    data.companyName = document.getElementById('passCompanyName').value || '';
+    data.opportunityTitle = document.getElementById('passOpportunityTitle').value || '';
+    data.opportunityType = document.getElementById('passOpportunityType').value || '';
     data.location = document.getElementById('passLocation').value || 'Not specified';
     data.workMode = document.getElementById('passWorkMode').value || 'Not specified';
     data.numberOfOpenings = parseInt(document.getElementById('passNumberOfOpenings').value) || 1;
@@ -485,11 +481,11 @@ async function generatePassWithAI() {
     data.salaryMax = parseInt(document.getElementById('passSalaryMax').value) || 0;
     const timeCommitmentSelect = document.getElementById('passTimeCommitment').value;
     data.timeCommitment = timeCommitmentSelect === 'Customize' 
-      ? document.getElementById('customPassTimeCommitment').value 
+      ? document.getElementById('customPassTimeCommitment').value || ''
       : timeCommitmentSelect;
     data.recruiterName = document.getElementById('passRecruiterName').value || '';
     data.phoneNumber = document.getElementById('passPhoneNumber').value || '';
-    data.emailAddress = document.getElementById('passEmailAddress').value;
+    data.emailAddress = document.getElementById('passEmailAddress').value || '';
 
     const salaryOptionRadios = document.getElementsByName('passSalaryOption');
     data.salaryOption = '';
@@ -508,30 +504,9 @@ async function generatePassWithAI() {
       document.getElementById('passSalaryMin-error').textContent = '';
       document.getElementById('passSalaryMax-error').textContent = '';
     }
-
-    // Validate mandatory fields only if no image is uploaded
-    const requiredFields = [
-      'passCompanyName', 'passOpportunityTitle', 'passOpportunityType', 'passEmailAddress'
-    ];
-    let allFieldsFilled = true;
-    if (!hasUploadedImage) {
-      for (const field of requiredFields) {
-        const fieldValue = document.getElementById(field).value;
-        if (!fieldValue) {
-          document.getElementById(`${field}-error`).textContent = 'This field is required';
-          allFieldsFilled = false;
-        } else {
-          document.getElementById(`${field}-error`).textContent = '';
-        }
-      }
-      if (!allFieldsFilled) {
-        descriptionResult.innerHTML = 'Please fill in all required fields or upload a poster.';
-        return;
-      }
-    }
   } else {
     data.companyName = document.getElementById('passIndividualCompanyName').value || 'Individual';
-    data.opportunityTitle = document.getElementById('passIndividualOpportunityTitle').value;
+    data.opportunityTitle = document.getElementById('passIndividualOpportunityTitle').value || '';
     const identitySelect = document.getElementById('passIndividualIdentity').value;
     data.opportunityType = identitySelect === 'Other' 
       ? document.getElementById('customPassIndividualIdentity').value 
@@ -550,11 +525,11 @@ async function generatePassWithAI() {
     data.salaryMax = parseInt(document.getElementById('passSalaryMax').value) || 0;
     const timeCommitmentSelect = document.getElementById('passIndividualTimeCommitment').value;
     data.timeCommitment = timeCommitmentSelect === 'Customize' 
-      ? document.getElementById('customPassIndividualTimeCommitment').value 
+      ? document.getElementById('customPassIndividualTimeCommitment').value || ''
       : timeCommitmentSelect;
     data.recruiterName = document.getElementById('passIndividualRecruiterName').value || '';
     data.phoneNumber = document.getElementById('passIndividualPhoneNumber').value || '';
-    data.emailAddress = document.getElementById('passIndividualEmailAddress').value;
+    data.emailAddress = document.getElementById('passIndividualEmailAddress').value || '';
 
     const salaryOptionRadios = document.getElementsByName('passIndividualSalaryOption');
     data.salaryOption = '';
@@ -573,28 +548,6 @@ async function generatePassWithAI() {
       document.getElementById('passSalaryMin-error').textContent = '';
       document.getElementById('passSalaryMax-error').textContent = '';
     }
-
-    // Validate mandatory fields only if no image is uploaded
-    const requiredFields = [
-      'passIndividualCompanyName', 'passIndividualOpportunityTitle', 'passIndividualIdentity',
-      'passIndividualEmailAddress'
-    ];
-    let allFieldsFilled = true;
-    if (!hasUploadedImage) {
-      for (const field of requiredFields) {
-        const fieldValue = field === 'passIndividualIdentity' ? data.opportunityType : document.getElementById(field).value;
-        if (!fieldValue) {
-          document.getElementById(`${field}-error`).textContent = field === 'passIndividualIdentity' && identitySelect === 'Other' ? 'Please specify your custom identity' : 'This field is required';
-          allFieldsFilled = false;
-        } else {
-          document.getElementById(`${field}-error`).textContent = '';
-        }
-      }
-      if (!allFieldsFilled) {
-        descriptionResult.innerHTML = 'Please fill in all required fields or upload a poster.';
-        return;
-      }
-    }
   }
 
   try {
@@ -611,7 +564,7 @@ async function generatePassWithAI() {
       try {
         const errorData = await response.json();
         console.error('Server error response:', errorData);
-        errorMessage = errorData.message || response.statusText;
+        errorMessage = errorData.error || response.statusText;
       } catch (e) {
         console.error('Failed to parse error response:', e);
       }
@@ -749,7 +702,7 @@ function openCropper(type) {
 
       image.onload = function() {
         cropper = new Cropper(image, {
-          aspectRatio: NaN, // Freeform cropping
+          aspectRatio: NaN,
           viewMode: 1,
           autoCropArea: 1,
           movable: true,
@@ -761,10 +714,10 @@ function openCropper(type) {
       };
     };
     reader.readAsDataURL(fileInput.files[0]);
-    // Ensure description box remains visible
     if (descriptionBox) descriptionBox.style.display = 'block';
   }
 }
+
 async function cropImage() {
   if (cropper) {
     const canvas = cropper.getCroppedCanvas();
@@ -798,13 +751,12 @@ async function cropImage() {
         if (response.ok) {
           const result = await response.json();
           const extractedText = result.text || '';
-          extractedTextInput.value = extractedText; // Update the hidden input
-          console.log('Updated extractedTextInput:', extractedTextInput.value); // Debug log
+          extractedTextInput.value = extractedText;
+          console.log('Updated extractedTextInput:', extractedTextInput.value);
           if (descriptionBox && extractedText) {
-            descriptionBox.innerHTML = extractedText; // Preview the text
+            descriptionBox.innerHTML = extractedText;
           }
           console.log('Extracted text:', extractedText);
-          // Trigger generation automatically
           generatePassWithAI();
         } else {
           const errorText = await response.text();
@@ -822,6 +774,7 @@ async function cropImage() {
     }, 'image/png');
   }
 }
+
 function closeCropper() {
   const modal = document.getElementById('cropperModal');
   if (cropper) {

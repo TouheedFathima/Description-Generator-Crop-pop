@@ -292,4 +292,30 @@
         font-size: 14px;
       }
 
-      
+      @media (max-width: 480px) {
+  #passPosterUpload,
+  #passIndividualPosterUpload {
+    max-width: 100%; /* Full width on mobile */
+    margin-bottom: 10px;
+  }
+
+  #cropperContainer {
+    width: 90%; /* Adjusted width for mobile */
+    padding: 10px;
+    top: 10%;
+    transform: translateX(-50%);
+    height: auto;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  #cropperImage {
+    max-height: 50vh; /* Reduced height for smaller screens */
+    width: 100%;
+  }
+
+  #cropperButtons .btn {
+    width: 100%;
+    margin-bottom: 5px;
+  }
+}

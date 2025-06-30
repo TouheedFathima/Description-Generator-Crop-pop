@@ -8,13 +8,10 @@ import pytesseract
 from PIL import Image
 import io
 
-# Ensure Tesseract is installed on your system and pytesseract is configured
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'  # Update path as needed
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'  
 
-# Load environment variables
 load_dotenv()
 
-# Initialize Flask app
 app = Flask(__name__, template_folder='templates', static_folder='static')
 CORS(app)
 
@@ -148,32 +145,6 @@ def pass_opportunity():
 def generate_pass_description_endpoint():
     data = request.json
     print("Received payload for /generate-pass-description:", data)
-
-    # Define mandatory fields based on companyType
-    if data.get("companyType") == "company":
-        mandatory_fields = {
-            "companyName": {"field_name": "Company Name"},
-            "opportunityTitle": {"field_name": "Opportunity Title"},
-            "opportunityType": {"field_name": "Opportunity Type"},
-            "emailAddress": {"field_name": "Email Address", "validate": lambda v: bool(re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", v))}
-        }
-    else:  # individual
-        mandatory_fields = {
-            "opportunityTitle": {"field_name": "Opportunity Title"},
-            "opportunityType": {"field_name": "Opportunity Type"},
-            "emailAddress": {"field_name": "Email Address", "validate": lambda v: bool(re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", v))}
-        }
-
-    # Validate mandatory fields
-    for field, rule in mandatory_fields.items():
-        value = data.get(field)
-        field_name = rule["field_name"]
-        print(f"Validating {field}: {value} (type: {type(value)})")
-        if value is None or str(value).strip() == "":
-            return jsonify({"error": f"Required field '{field_name}' is missing or empty, please fill it.", "field": field, "value": value}), 400
-        if rule.get("validate") and not rule["validate"](value):
-            error_msg = f"Required field '{field_name}' is invalid, please correct it."
-            return jsonify({"error": error_msg, "field": field, "value": value}), 400
 
     # Optional fields with defaults
     data["companyName"] = data.get("companyName", "Individual")
