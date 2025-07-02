@@ -2,12 +2,7 @@ databases: []
 services:
   - type: web
     name: description-generator-crop-pop
-    env: python
-    buildCommand: |
-      apt-get update -qq && apt-get install -y tesseract-ocr tesseract-ocr-eng
-      pip install -r requirements.txt
-    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    env: docker
+    buildCommand: docker build -t description-generator .
+    startCommand: docker run -p $PORT:4000 description-generator
     autoDeploy: true
-    envVars:
-      - key: PYTHON_VERSION
-        value: 3.13
