@@ -9,9 +9,10 @@ import pytesseract
 from PIL import Image
 import io
 
+
 if platform.system() == 'Windows':
     pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-else:  # Assume Linux (e.g., Render)
+else:  # Linux (e.g., Render)
     pytesseract.pytesseract.tesseract_cmd = os.environ.get('TESSERACT_CMD', '/usr/bin/tesseract') 
 
 load_dotenv()
