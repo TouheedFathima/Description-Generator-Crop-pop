@@ -9,13 +9,6 @@ import pytesseract
 from PIL import Image
 import io
 
-import shutil
-tesseract_path = shutil.which('tesseract')
-if tesseract_path:
-    pytesseract.pytesseract.tesseract_cmd = tesseract_path
-else:
-    raise Exception("Tesseract not found on the system. Please ensure 'tesseract-ocr' is installed via apt.txt on Render or contact support.")
-
 if platform.system() == 'Windows':
     pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 else:  # Linux (e.g., Render)
