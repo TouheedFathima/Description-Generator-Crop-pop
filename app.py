@@ -1,5 +1,6 @@
 import os
 import re
+import platform
 from flask import Flask, request, jsonify, render_template
 from dotenv import load_dotenv
 from description_generator import generate_description, generate_pass_opportunity_description
@@ -8,7 +9,10 @@ import pytesseract
 from PIL import Image
 import io
 
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'  
+if platform.system() == 'Windows':
+    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+else:  # Assume Linux (e.g., Render)
+    pytesseract.pytesseract.tesseract_cmd = os.environ.get('TESSERACT_CMD', '/usr/bin/tesseract') 
 
 load_dotenv()
 
@@ -19,7 +23,7 @@ CORS(app)
 def index():
     return render_template('index.html')
 
-@app.route('/extract-text', methods=['POST'])
+@app.route('/extract-text',methods=['POST', 'OPTIONS'])
 def extract_text():
     if 'image' not in request.files:
         return jsonify({"error": "No image file provided"}), 400
@@ -32,7 +36,7 @@ def extract_text():
         print(f"Error extracting text: {str(e)}")
         return jsonify({"error": f"Failed to extract text: {str(e)}"}), 500
 
-@app.route('/generate-description', methods=['POST'])
+@app.route('/generate-description', methods=['POST', 'OPTIONS'])
 def generate_description_endpoint():
     data = request.json
     print("Received payload for /generate-description:", data)
@@ -135,13 +139,13 @@ def generate_description_endpoint():
         print("Error in /generate-description:", str(e))
         return jsonify({"error": f"Failed to generate description: {str(e)}"}), 500
 
-@app.route('/pass-opportunity', methods=['POST'])
+@app.route('/pass-opportunity', methods=['POST', 'OPTIONS'])
 def pass_opportunity():
     data = request.json
     print("Received payload for /pass-opportunity:", data)
     return jsonify({"message": "Opportunity passed successfully!"})
 
-@app.route('/generate-pass-description', methods=['POST'])
+@app.route('/generate-pass-description',methods=['POST', 'OPTIONS'])
 def generate_pass_description_endpoint():
     data = request.json
     print("Received payload for /generate-pass-description:", data)
