@@ -11,13 +11,14 @@ import io
 
 if platform.system() == 'Windows':
     pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-else:  # Linux (e.g., Render)
+else:  
     pytesseract.pytesseract.tesseract_cmd = os.environ.get('TESSERACT_CMD', '/usr/bin/tesseract') 
 
 load_dotenv()
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
-CORS(app)
+CORS(app, origins=["https://app.opptiverse.com"], supports_credentials=True)
+
 
 @app.route('/')
 def index():
