@@ -47,7 +47,7 @@ def generate_description(data):
     # Convert vacancy to float and handle invalid inputs
     vacancy_str = data.get("vacancy", "1")
     try:
-        vacancy = float(vacancy_str) if str(vacancy_str).replace('.', '').isdigit() else 1
+        vacancy = int(vacancy_str) if str(vacancy_str).replace('.', '').isdigit() else 1
     except ValueError:
         vacancy = 1
 

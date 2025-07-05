@@ -21,7 +21,7 @@ app = Flask(__name__, template_folder='templates', static_folder='static')
 CORS(
     app,
     resources={r"/*": {
-        "origins": ["https://app.opptiverse.com"],
+        "origins": ["https://app.opptiverse.com", "http://localhost:3000"],
         "methods": ["GET", "POST", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization"],
         "supports_credentials": True
