@@ -8,11 +8,12 @@ from flask_cors import CORS
 import pytesseract
 from PIL import Image
 import io
+import shutil
 
 if platform.system() == 'Windows':
     pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-else:  
-    pytesseract.pytesseract.tesseract_cmd = os.environ.get('TESSERACT_CMD', '/usr/bin/tesseract') 
+else:
+    pytesseract.pytesseract.tesseract_cmd = os.environ.get('TESSERACT_CMD', '/usr/bin/tesseract')
 
 load_dotenv()
 
@@ -22,10 +23,11 @@ CORS(
     resources={r"/*": {
         "origins": ["https://app.opptiverse.com"],
         "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type"],
+        "allow_headers": ["Content-Type", "Authorization"],
         "supports_credentials": True
     }}
 )
+
 @app.before_request
 def handle_options_request():
     if request.method == "OPTIONS":
@@ -35,12 +37,14 @@ def handle_options_request():
 def index():
     return render_template('index.html')
 
-@app.route('/extract-text',methods=['POST', 'OPTIONS'])
+@app.route('/extract-text', methods=['POST', 'OPTIONS'])
 def extract_text():
     if 'image' not in request.files:
         return jsonify({"error": "No image file provided"}), 400
     file = request.files['image']
     try:
+        if not shutil.which('tesseract'):
+            return jsonify({"error": "Tesseract is not installed on this server. Contact support."}), 503
         img = Image.open(io.BytesIO(file.read()))
         extracted_text = pytesseract.image_to_string(img)
         return jsonify({"text": extracted_text.strip()})
@@ -55,22 +59,22 @@ def generate_description_endpoint():
 
     # Define mandatory fields with validation rules based on form type
     if data.get("companyType") == "company" and "workMode" in data:
-        # "For My Company" form (Create New Opportunity)
+        # "For My Company" form
         mandatory_fields = {
             "companyName": {"field_name": "Company Name"},
             "opportunityTitle": {"field_name": "Opportunity Title"},
             "opportunityType": {"field_name": "Opportunity Type"},
             "location": {"field_name": "Location"},
             "workMode": {"field_name": "Work Mode"},
-            "numberOfOpenings": {"field_name": "Number of Openings", "validate": lambda v: v > 0},
+            "numberOfOpenings": {"field_name": "Number of Openings", "validate": lambda v: float(v) > 0},
             "lastDate": {"field_name": "Last Date to Apply"},
             "skillsRequired": {"field_name": "Skills Required", "validate": lambda v: len([s.strip() for s in v.split(",") if s.strip()]) > 0},
             "timeCommitment": {"field_name": "Time Commitment"},
-            "salaryMin": {"field_name": "Minimum Salary", "validate": lambda v: v >= 0},
-            "salaryMax": {"field_name": "Maximum Salary", "validate": lambda v: v >= 0}
+            "salaryMin": {"field_name": "Minimum Salary", "validate": lambda v: float(v) >= 0},
+            "salaryMax": {"field_name": "Maximum Salary", "validate": lambda v: float(v) >= 0}
         }
     else:
-        # "Individual" form (Create New Opportunity)
+        # "Individual" form
         mandatory_fields = {
             "postType": {"field_name": "Post Type"},
             "location": {"field_name": "Location"},
@@ -78,7 +82,7 @@ def generate_description_endpoint():
             "title": {"field_name": "Title"},
             "package": {"field_name": "Package"},
             "lastDate": {"field_name": "Last Date"},
-            "vacancy": {"field_name": "Vacancy", "validate": lambda v: v > 0},
+            "vacancy": {"field_name": "Vacancy", "validate": lambda v: float(v) > 0},
             "skills": {"field_name": "Skills"}
         }
 
@@ -92,40 +96,43 @@ def generate_description_endpoint():
             continue
         if not rule.get("validate") and str(value).strip() == "":
             return jsonify({"error": f"Required field '{field_name}' is empty, please fill it.", "field": field, "value": value}), 400
-        if rule.get("validate") and not rule["validate"](value):
-            error_msg = f"Required field '{field_name}' is invalid, please correct it."
-            if field in ["numberOfOpenings", "vacancy"]:
-                error_msg = f"Required field '{field_name}' must be a positive number, please correct it."
-            elif field in ["salaryMin", "salaryMax"]:
-                error_msg = f"Required field '{field_name}' must be a non-negative number, please correct it."
-            return jsonify({"error": error_msg, "field": field, "value": value}), 400
+        if rule.get("validate"):
+            try:
+                # Convert to float to handle numeric strings (e.g., "13" or "13.5")
+                validated_value = float(value) if isinstance(value, (str, int, float)) and str(value).replace('.', '').replace('-', '').isdigit() else value
+                if not rule["validate"](validated_value):
+                    error_msg = f"Required field '{field_name}' is invalid, please correct it."
+                    if field in ["numberOfOpenings", "vacancy"]:
+                        error_msg = f"Required field '{field_name}' must be a positive number, please correct it."
+                    elif field in ["salaryMin", "salaryMax"]:
+                        error_msg = f"Required field '{field_name}' must be a non-negative number, please correct it."
+                    return jsonify({"error": error_msg, "field": field, "value": value}), 400
+            except (ValueError, TypeError):
+                return jsonify({"error": f"Required field '{field_name}' must be a number, please correct it.", "field": field, "value": value}), 400
 
-    # Additional validations for "For My Company" form (Create New Opportunity)
+    # Additional validations for "For My Company" form
     if data.get("companyType") == "company" and "workMode" in data:
-        salary_min = data.get("salaryMin", 0)
-        salary_max = data.get("salaryMax", 0)
+        salary_min = float(data.get("salaryMin", 0))
+        salary_max = float(data.get("salaryMax", 0))
         if salary_min > salary_max:
             return jsonify({"error": "Maximum salary must be greater than or equal to minimum salary", "field": "salaryMax", "value": salary_max}), 400
 
         if isinstance(data.get("skillsRequired"), str):
             data["skillsRequired"] = [s.strip() for s in data["skillsRequired"].split(",") if s.strip()]
 
-        # Validate salaryOption
         salary_option = data.get("salaryOption", "")
         valid_salary_options = ["Negotiable", "Prefer Not to Disclose", ""]
         if salary_option not in valid_salary_options:
             return jsonify({"error": f"Invalid salary option: {salary_option}. Must be one of {valid_salary_options[:-1]} or empty.", "field": "salaryOption", "value": salary_option}), 400
         data["salaryOption"] = salary_option
     else:
-        # Process skills and keywords for "Individual" form (Create New Opportunity)
         if isinstance(data.get("skills"), str):
             data["skills"] = [s.strip() for s in data["skills"].split(",") if s.strip()]
         if isinstance(data.get("keywords"), str):
             data["keywords"] = [k.strip() for k in data["keywords"].split(",") if k.strip()]
         else:
-            data["keywords"] = []  # Set default for keywords
+            data["keywords"] = []
 
-        # Validate salaryOption
         salary_option = data.get("salaryOption", "")
         valid_salary_options = ["Negotiable", "Prefer Not to Disclose", ""]
         if salary_option not in valid_salary_options:
@@ -157,7 +164,7 @@ def pass_opportunity():
     print("Received payload for /pass-opportunity:", data)
     return jsonify({"message": "Opportunity passed successfully!"})
 
-@app.route('/generate-pass-description',methods=['POST', 'OPTIONS'])
+@app.route('/generate-pass-description', methods=['POST', 'OPTIONS'])
 def generate_pass_description_endpoint():
     data = request.json
     print("Received payload for /generate-pass-description:", data)
@@ -166,7 +173,7 @@ def generate_pass_description_endpoint():
     data["companyName"] = data.get("companyName", "Individual")
     data["location"] = data.get("location", "Not specified")
     data["workMode"] = data.get("workMode", "Not specified")
-    data["numberOfOpenings"] = data.get("numberOfOpenings", 1)
+    data["numberOfOpenings"] = float(data.get("numberOfOpenings", 1))
     data["lastDate"] = data.get("lastDate", "")
     data["educationRequirements"] = data.get("educationRequirements", "Not specified")
     data["industryExpertise"] = data.get("industryExpertise", "")
@@ -174,11 +181,12 @@ def generate_pass_description_endpoint():
     data["skillsRequired"] = data.get("skillsRequired", "")
     data["languagePreference"] = data.get("languagePreference", "")
     data["genderPreference"] = data.get("genderPreference", "")
-    data["salaryMin"] = data.get("salaryMin", 0)
-    data["salaryMax"] = data.get("salaryMax", 0)
+    data["salaryMin"] = float(data.get("salaryMin", 0))
+    data["salaryMax"] = float(data.get("salaryMax", 0))
     data["timeCommitment"] = data.get("timeCommitment", "")
     data["recruiterName"] = data.get("recruiterName", "")
     data["phoneNumber"] = data.get("phoneNumber", "")
+
     # Validate salaryOption
     salary_option = data.get("salaryOption", "")
     valid_salary_options = ["Negotiable", "Prefer Not to Disclose", ""]
