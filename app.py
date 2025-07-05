@@ -66,12 +66,12 @@ def generate_description_endpoint():
             "opportunityType": {"field_name": "Opportunity Type"},
             "location": {"field_name": "Location"},
             "workMode": {"field_name": "Work Mode"},
-            "numberOfOpenings": {"field_name": "Number of Openings", "validate": lambda v: float(v) > 0},
+            "numberOfOpenings": {"field_name": "Number of Openings", "validate": lambda v: v > 0},
             "lastDate": {"field_name": "Last Date to Apply"},
             "skillsRequired": {"field_name": "Skills Required", "validate": lambda v: len([s.strip() for s in v.split(",") if s.strip()]) > 0},
             "timeCommitment": {"field_name": "Time Commitment"},
-            "salaryMin": {"field_name": "Minimum Salary", "validate": lambda v: float(v) >= 0},
-            "salaryMax": {"field_name": "Maximum Salary", "validate": lambda v: float(v) >= 0}
+            "salaryMin": {"field_name": "Minimum Salary", "validate": lambda v: v >= 0},
+            "salaryMax": {"field_name": "Maximum Salary", "validate": lambda v: v >= 0}
         }
     else:
         # "Individual" form
@@ -82,7 +82,7 @@ def generate_description_endpoint():
             "title": {"field_name": "Title"},
             "package": {"field_name": "Package"},
             "lastDate": {"field_name": "Last Date"},
-            "vacancy": {"field_name": "Vacancy", "validate": lambda v: float(v) > 0},
+            "vacancy": {"field_name": "Vacancy", "validate": lambda v: v > 0},
             "skills": {"field_name": "Skills"}
         }
 
@@ -98,8 +98,8 @@ def generate_description_endpoint():
             return jsonify({"error": f"Required field '{field_name}' is empty, please fill it.", "field": field, "value": value}), 400
         if rule.get("validate"):
             try:
-                # Convert to float to handle numeric strings (e.g., "13" or "13.5")
-                validated_value = float(value) if isinstance(value, (str, int, float)) and str(value).replace('.', '').replace('-', '').isdigit() else value
+                # Convert to float only if it's a string or number, and validate the converted value
+                validated_value = float(value) if isinstance(value, (str, int, float)) and str(value).replace('.', '').replace('-', '').replace('+', '').isdigit() else value
                 if not rule["validate"](validated_value):
                     error_msg = f"Required field '{field_name}' is invalid, please correct it."
                     if field in ["numberOfOpenings", "vacancy"]:
