@@ -164,48 +164,48 @@ def generate_pass_description_endpoint():
     data = request.json
     print("Received payload for /generate-pass-description:", data)
 
-    # Optional fields with defaults
-    data["companyName"] = data.get("companyName", "Individual")
-    data["location"] = data.get("location", "Not specified")
-    data["workMode"] = data.get("workMode", "Not specified")
-    data["numberOfOpenings"] = float(data.get("numberOfOpenings", 1))
-    data["lastDate"] = data.get("lastDate", "")
-    data["educationRequirements"] = data.get("educationRequirements", "Not specified")
-    data["industryExpertise"] = data.get("industryExpertise", "")
-    data["preferredExperience"] = data.get("preferredExperience", "Not specified")
-    data["skillsRequired"] = data.get("skillsRequired", "")
-    data["languagePreference"] = data.get("languagePreference", "")
-    data["genderPreference"] = data.get("genderPreference", "")
-    data["salaryMin"] = float(data.get("salaryMin", 0))
-    data["salaryMax"] = float(data.get("salaryMax", 0))
-    data["timeCommitment"] = data.get("timeCommitment", "")
-    data["recruiterName"] = data.get("recruiterName", "")
-    data["phoneNumber"] = data.get("phoneNumber", "")
+    # # Optional fields with defaults
+    # data["companyName"] = data.get("companyName", "Individual")
+    # data["location"] = data.get("location", "Not specified")
+    # data["workMode"] = data.get("workMode", "Not specified")
+    # data["numberOfOpenings"] = float(data.get("numberOfOpenings", 1))
+    # data["lastDate"] = data.get("lastDate", "")
+    # data["educationRequirements"] = data.get("educationRequirements", "Not specified")
+    # data["industryExpertise"] = data.get("industryExpertise", "")
+    # data["preferredExperience"] = data.get("preferredExperience", "Not specified")
+    # data["skillsRequired"] = data.get("skillsRequired", "")
+    # data["languagePreference"] = data.get("languagePreference", "")
+    # data["genderPreference"] = data.get("genderPreference", "")
+    # data["salaryMin"] = float(data.get("salaryMin", 0))
+    # data["salaryMax"] = float(data.get("salaryMax", 0))
+    # data["timeCommitment"] = data.get("timeCommitment", "")
+    # data["recruiterName"] = data.get("recruiterName", "")
+    # data["phoneNumber"] = data.get("phoneNumber", "")
 
-    # Validate salaryOption
-    salary_option = data.get("salaryOption", "")
-    valid_salary_options = ["Negotiable", "Prefer Not to Disclose", ""]
-    if salary_option not in valid_salary_options:
-        return jsonify({"error": f"Invalid salary option: {salary_option}. Must be one of {valid_salary_options[:-1]} or empty.", "field": "salaryOption", "value": salary_option}), 400
-    data["salaryOption"] = salary_option
+    # # Validate salaryOption
+    # salary_option = data.get("salaryOption", "")
+    # valid_salary_options = ["Negotiable", "Prefer Not to Disclose", ""]
+    # if salary_option not in valid_salary_options:
+    #     return jsonify({"error": f"Invalid salary option: {salary_option}. Must be one of {valid_salary_options[:-1]} or empty.", "field": "salaryOption", "value": salary_option}), 400
+    # data["salaryOption"] = salary_option
 
-    # Validate optional fields only if provided
-    optional_fields = {
-        "phoneNumber": {"field_name": "Phone Number", "validate": lambda v: len(re.sub(r"[^0-9]", "", v)) >= 10},
-        "emailAddress": {"field_name": "Email Address", "validate": lambda v: bool(re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", v))}
-    }
-    for field, rule in optional_fields.items():
-        value = data.get(field)
-        if value and str(value).strip() != "":
-            if not rule["validate"](value):
-                error_msg = f"Field '{rule['field_name']}' is invalid, please correct it."
-                if field == "phoneNumber":
-                    error_msg = f"Field '{rule['field_name']}' must be a valid phone number (at least 10 digits), please correct it."
-                return jsonify({"error": error_msg, "field": field, "value": value}), 400
+    # # Validate optional fields only if provided
+    # optional_fields = {
+    #     "phoneNumber": {"field_name": "Phone Number", "validate": lambda v: len(re.sub(r"[^0-9]", "", v)) >= 10},
+    #     "emailAddress": {"field_name": "Email Address", "validate": lambda v: bool(re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", v))}
+    # }
+    # for field, rule in optional_fields.items():
+    #     value = data.get(field)
+    #     if value and str(value).strip() != "":
+    #         if not rule["validate"](value):
+    #             error_msg = f"Field '{rule['field_name']}' is invalid, please correct it."
+    #             if field == "phoneNumber":
+    #                 error_msg = f"Field '{rule['field_name']}' must be a valid phone number (at least 10 digits), please correct it."
+    #             return jsonify({"error": error_msg, "field": field, "value": value}), 400
 
-    # Validate salary range
-    if data["salaryMin"] > data["salaryMax"] and data["salaryMax"] != 0:
-        return jsonify({"error": "Maximum salary must be greater than or equal to minimum salary", "field": "salaryMax", "value": data["salaryMax"]}), 400
+    # # Validate salary range
+    # if data["salaryMin"] > data["salaryMax"] and data["salaryMax"] != 0:
+    #     return jsonify({"error": "Maximum salary must be greater than or equal to minimum salary", "field": "salaryMax", "value": data["salaryMax"]}), 400
 
     # Process skillsRequired if provided
     if isinstance(data.get("skillsRequired"), str) and data["skillsRequired"].strip():
