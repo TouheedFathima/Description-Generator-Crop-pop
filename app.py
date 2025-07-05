@@ -66,12 +66,12 @@ def generate_description_endpoint():
             "opportunityType": {"field_name": "Opportunity Type"},
             "location": {"field_name": "Location"},
             "workMode": {"field_name": "Work Mode"},
-            "numberOfOpenings": {"field_name": "Number of Openings"},
+            "numberOfOpenings": {"field_name": "Number of Openings", "validate": lambda v: float(v) > 0 if isinstance(v, (int, float, str)) and str(v).replace('.', '').isdigit() else False},
             "lastDate": {"field_name": "Last Date to Apply"},
             "skillsRequired": {"field_name": "Skills Required", "validate": lambda v: len([s.strip() for s in v.split(",") if s.strip()]) > 0},
             "timeCommitment": {"field_name": "Time Commitment"},
-            "salaryMin": {"field_name": "Minimum Salary", "validate": lambda v: v >= 0},
-            "salaryMax": {"field_name": "Maximum Salary", "validate": lambda v: v >= 0}
+            "salaryMin": {"field_name": "Minimum Salary", "validate": lambda v: float(v) >= 0 if isinstance(v, (int, float, str)) and str(v).replace('.', '').isdigit() else False},
+            "salaryMax": {"field_name": "Maximum Salary", "validate": lambda v: float(v) >= 0 if isinstance(v, (int, float, str)) and str(v).replace('.', '').isdigit() else False}
         }
     else:
         # "Individual" form
@@ -82,33 +82,28 @@ def generate_description_endpoint():
             "title": {"field_name": "Title"},
             "package": {"field_name": "Package"},
             "lastDate": {"field_name": "Last Date"},
-            "vacancy": {"field_name": "Vacancy"},
+            "vacancy": {"field_name": "Vacancy", "validate": lambda v: float(v) > 0 if isinstance(v, (int, float, str)) and str(v).replace('.', '').isdigit() else False},
             "skills": {"field_name": "Skills"}
         }
 
     # Validate mandatory fields
-    # for field, rule in mandatory_fields.items():
-    #     value = data.get(field)
-    #     field_name = rule["field_name"]
-    #     print(f"Validating {field}: {value} (type: {type(value)})")
-    #     if value is None:
-    #         print(f"Field '{field_name}' is missing, will use default in description_generator.py")
-    #         continue
-    #     if not rule.get("validate") and str(value).strip() == "":
-    #         return jsonify({"error": f"Required field '{field_name}' is empty, please fill it.", "field": field, "value": value}), 400
-    #     if rule.get("validate"):
-    #         try:
-    #            validated_value = float(value)
-    #            if not rule["validate"](validated_value):
-    #                 error_msg = f"Required field '{field_name}' is invalid, please correct it."
-    #                 if field in ["numberOfOpenings", "vacancy"]:
-    #                     error_msg = f"Required field '{field_name}' must be a positive number, please correct it."
-    #                 elif field in ["salaryMin", "salaryMax"]:
-    #                     error_msg = f"Required field '{field_name}' must be a non-negative number, please correct it."
-    #                 return jsonify({"error": error_msg, "field": field, "value": value}), 400
-    #         except (ValueError, TypeError):
-    #           return jsonify({"error": f"Required field '{field_name}' must be a number, please correct it.", "field": field, "value": value}), 400
-
+    for field, rule in mandatory_fields.items():
+        value = data.get(field)
+        field_name = rule["field_name"]
+        print(f"Validating {field}: {value} (type: {type(value)})")
+        if value is None:
+            print(f"Field '{field_name}' is missing, will use default in description_generator.py")
+            continue
+        if not rule.get("validate") and str(value).strip() == "":
+            return jsonify({"error": f"Required field '{field_name}' is empty, please fill it.", "field": field, "value": value}), 400
+        if rule.get("validate"):
+            if not rule["validate"](value):
+                error_msg = f"Required field '{field_name}' is invalid, please correct it."
+                if field in ["numberOfOpenings", "vacancy"]:
+                    error_msg = f"Required field '{field_name}' must be a positive number, please correct it."
+                elif field in ["salaryMin", "salaryMax"]:
+                    error_msg = f"Required field '{field_name}' must be a non-negative number, please correct it."
+                return jsonify({"error": error_msg, "field": field, "value": value}), 400
 
     # Additional validations for "For My Company" form
     if data.get("companyType") == "company" and "workMode" in data:

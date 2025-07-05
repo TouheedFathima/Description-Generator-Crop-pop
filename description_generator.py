@@ -40,11 +40,16 @@ def generate_description(data):
     important_words = list(set([company_name] + skills + keywords))
     important_words = [word for word in important_words if word]
 
-    # Extract common fields
+# Extract common fields
     location = data.get("location", "") or "Not specified"
     package = data.get("package", "") or "Competitive compensation"
     last_date = data.get("lastDate", "") or "Not specified"
-    vacancy = data.get("vacancy", 1) if data.get("vacancy") and data.get("vacancy") > 0 else 1
+    # Convert vacancy to float and handle invalid inputs
+    vacancy_str = data.get("vacancy", "1")
+    try:
+        vacancy = float(vacancy_str) if str(vacancy_str).replace('.', '').isdigit() else 1
+    except ValueError:
+        vacancy = 1
 
     # Fields specific to "For My Company"
     work_duration = data.get("workDuration", "") or "Not specified"
