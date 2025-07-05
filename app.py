@@ -17,9 +17,18 @@ else:
 load_dotenv()
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
-CORS(app, origins=["https://app.opptiverse.com"], supports_credentials=True)
-
-
+CORS(
+    app,
+    resources={r"/*": {          
+        "origins": [
+            "https://app.opptiverse.com",  
+            "https://opptiverse.com",       
+        ],
+        "supports_credentials": True
+    }},
+    allow_headers=["Content-Type", "Authorization"],
+    methods=["GET", "POST", "OPTIONS"]
+)
 @app.route('/')
 def index():
     return render_template('index.html')
