@@ -66,7 +66,7 @@ def generate_description_endpoint():
             "opportunityType": {"field_name": "Opportunity Type"},
             "location": {"field_name": "Location"},
             "workMode": {"field_name": "Work Mode"},
-            "numberOfOpenings": {"field_name": "Number of Openings", "validate": lambda v: v > 0},
+            "numberOfOpenings": {"field_name": "Number of Openings"},
             "lastDate": {"field_name": "Last Date to Apply"},
             "skillsRequired": {"field_name": "Skills Required", "validate": lambda v: len([s.strip() for s in v.split(",") if s.strip()]) > 0},
             "timeCommitment": {"field_name": "Time Commitment"},
@@ -82,7 +82,7 @@ def generate_description_endpoint():
             "title": {"field_name": "Title"},
             "package": {"field_name": "Package"},
             "lastDate": {"field_name": "Last Date"},
-            "vacancy": {"field_name": "Vacancy", "validate": lambda v: v > 0},
+            "vacancy": {"field_name": "Vacancy"},
             "skills": {"field_name": "Skills"}
         }
 
