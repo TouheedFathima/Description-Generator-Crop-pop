@@ -19,16 +19,18 @@ load_dotenv()
 app = Flask(__name__, template_folder='templates', static_folder='static')
 CORS(
     app,
-    resources={r"/*": {          
-        "origins": [
-            "https://app.opptiverse.com",  
-            "https://opptiverse.com",       
-        ],
+    resources={r"/*": {
+        "origins": ["https://app.opptiverse.com"],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type"],
         "supports_credentials": True
-    }},
-    allow_headers=["Content-Type", "Authorization"],
-    methods=["GET", "POST", "OPTIONS"]
+    }}
 )
+@app.before_request
+def handle_options_request():
+    if request.method == "OPTIONS":
+        return '', 200
+
 @app.route('/')
 def index():
     return render_template('index.html')
