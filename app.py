@@ -97,17 +97,17 @@ def generate_description_endpoint():
         if not rule.get("validate") and str(value).strip() == "":
             return jsonify({"error": f"Required field '{field_name}' is empty, please fill it.", "field": field, "value": value}), 400
         if rule.get("validate"):
-                try:
-                    validated_value = float(value)
-                    if not rule["validate"](validated_value):
-                        error_msg = f"Required field '{field_name}' is invalid, please correct it."
-                        if field in ["numberOfOpenings", "vacancy"]:
-                            error_msg = f"Required field '{field_name}' must be a positive number, please correct it."
-                        elif field in ["salaryMin", "salaryMax"]:
-                            error_msg = f"Required field '{field_name}' must be a non-negative number, please correct it."
-                        return jsonify({"error": error_msg, "field": field, "value": value}), 400
-                except (ValueError, TypeError):
-                    return jsonify({"error": f"Required field '{field_name}' must be a number, please correct it.", "field": field, "value": value}), 400
+            try:
+               validated_value = float(value)
+               if not rule["validate"](validated_value):
+                    error_msg = f"Required field '{field_name}' is invalid, please correct it."
+                    if field in ["numberOfOpenings", "vacancy"]:
+                        error_msg = f"Required field '{field_name}' must be a positive number, please correct it."
+                    elif field in ["salaryMin", "salaryMax"]:
+                        error_msg = f"Required field '{field_name}' must be a non-negative number, please correct it."
+                    return jsonify({"error": error_msg, "field": field, "value": value}), 400
+            except (ValueError, TypeError):
+              return jsonify({"error": f"Required field '{field_name}' must be a number, please correct it.", "field": field, "value": value}), 400
 
 
     # Additional validations for "For My Company" form
