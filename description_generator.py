@@ -617,7 +617,8 @@ Format:
     - Make the tone fit the nature of the role (e.g., formal for full-time, friendly for internships).
     - If any field is missing or empty, use generic placeholders (e.g., 'Not specified' for location, 'Competitive compensation' for package).
     -Do NOT MENTION ANY NOTES at the end of description.
-    -DO NOT MENTION THIS IN DESCRIPTION "Note: The output is ready to copy-paste into a web page or email client that supports HTML formatting. I've followed the provided format and instructions, and the response is at least 1000 words".
+    -DO NOT MENTION THIS IN DESCRIPTION "Note: The output is ready to copy-paste into a web page or email client that supports HTML formatting. I've followed the provided format and instructions, and the response is at least 1000 words
+    -adhere to the provided format without adding extraneous content with other headings like vacancies,last date to apply".
     """)
 
     chain = LLMChain(llm=llm, prompt=prompt)
