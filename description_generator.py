@@ -102,7 +102,7 @@ Format:
     <li>[List of skills (if provided, otherwise generic skills).]</li>
 </ul>
 """
-        elif post_type == "Full time":
+        elif post_type == "Full-time":
             intro_instruction = "Generate a professional full-time job description targeted at attracting qualified candidates. The tone should be formal, aspirational, and highlight long-term career growth, company culture, and stability."
             format_instruction = """
 Format:
@@ -132,7 +132,7 @@ Format:
     <li>[Perks like health insurance, paid leave, etc.]</li>
 </ul>
 """
-        elif post_type == "Part time":
+        elif post_type == "Part-time":
             intro_instruction = "Generate a clear and professional part-time job description. Highlight flexible hours, key responsibilities, and the specific time commitment required. Keep the tone friendly yet informative."
             format_instruction = """
 Format:
@@ -178,8 +178,6 @@ Format:
 <ul>
     <li>[List of duties.]</li>
 </ul>
-
-<b>Duration:</b> {workDuration}  
 """
         elif post_type == "Internship (Unpaid)":
             intro_instruction = "Create an unpaid internship post that is inviting to students or fresh graduates. Emphasize learning, mentorship, networking opportunities, and other non-monetary benefits to attract candidates. Keep the tone encouraging and professional."
@@ -187,33 +185,26 @@ Format:
 Format: 
 <b>About the Company:</b>  
 [Brief overview.]
-
 <b>Internship Overview:</b>  
 [What interns will work on.]
-
 <b>Learning Opportunities:</b>  
 <ul>
     <li>[List skills interns will develop.]</li>
 </ul>
-
 <b>Requirements:</b>  
 <ul>
     <li>[Eligibility, background, or tools.]</li>
 </ul>
-
 <b>Key Responsibilities:</b>  
 <ul>
     <li>[List of duties.]</li>
 </ul>
-
 <b>Non-Monetary Benefits:</b>  
 <ul>
     <li>[Highlight mentorship, networking, certificates, etc.]</li>
 </ul>
-
-<b>Duration:</b> {workDuration}  
 """
-        elif post_type == "Contract":
+        elif post_type == "Contract-based":
             intro_instruction = "Generate a professional contract opportunity post. Focus on short-term project deliverables, duration, and payment. It is not a job. The tone should appeal to freelancers or short-term collaborators."
             format_instruction = """
 Format:
@@ -232,7 +223,7 @@ Format:
 
 <b>Contract Duration:</b> {workDuration}  
 """
-        elif post_type == "Project (freelancers)":
+        elif post_type == "Project (Freelancer)":
             intro_instruction = "Generate a project collaboration post for individual freelancers. This is not a job but an opportunity for freelancers to contribute to a specific project with clear goals and timelines. Focus on skillset needed, project objectives, and payment terms. Keep the tone flexible and appealing to independent professionals."
             format_instruction = """
 Format:
@@ -249,7 +240,7 @@ Format:
 
 <b>Timeline:</b> {workDuration}  
 """
-        elif post_type == "Project (Service companies)":
+        elif post_type == "Project (Service Company)":
             intro_instruction = "Generate a project collaboration post for service companies. This is not a job but an opportunity for companies to collaborate on a specific project with clear goals and timelines. Focus on partnership potential, project scale, and required expertise. Keep the tone formal and professional."
             format_instruction = """
 Format:
@@ -324,7 +315,7 @@ Format:
     <li>[Details about eligibility criteria.]</li>
 </ul>
 """
-        elif post_type == "Full time":
+        elif post_type == "Full-time":
             intro_instruction = "Generate a professional full-time opportunity description for an individual seeking a long-term collaborator. The tone should be approachable yet formal, emphasizing the individual's vision, the role's impact, and opportunities for growth."
             format_instruction = """
 Format:
@@ -359,7 +350,7 @@ Format:
     <li>[Details about eligibility criteria.]</li>
 </ul>
 """
-        elif post_type == "Part time":
+        elif post_type == "Part-time":
             intro_instruction = "Generate a clear and professional part-time opportunity description for an individual seeking a flexible collaborator. Highlight the role's flexibility, key responsibilities, and the individual's support, with a friendly yet professional tone."
             format_instruction = """
 Format:
@@ -424,10 +415,6 @@ Format:
     <li>[Details about the stipend and learning opportunities.]</li>
 </ul>
 
-<b>Eligibility:</b>  
-<ul>
-    <li>[Details about eligibility criteria.]</li>
-</ul>
 """
         elif post_type == "Internship (Unpaid)":
             intro_instruction = "Create an unpaid internship opportunity description for an individual seeking a learner. Emphasize the learning opportunities, networking benefits, and non-monetary perks, with an encouraging and professional tone focused on growth."
@@ -458,13 +445,8 @@ Format:
 <ul>
     <li>[Highlight networking opportunities, certificates, mentorship, etc.]</li>
 </ul>
-
-<b>Eligibility:</b>  
-<ul>
-    <li>[Details about eligibility criteria.]</li>
-</ul>
 """
-        elif post_type == "Contract":
+        elif post_type == "Contract-based":
             intro_instruction = "Generate a professional contract opportunity description for an individual seeking a short-term collaborator. Focus on the project's deliverables, timeline, and compensation, with a professional tone appealing to freelancers."
             format_instruction = """
 Format:
@@ -494,12 +476,8 @@ Format:
     <li>[Details about the package and any additional benefits.]</li>
 </ul>
 
-<b>Eligibility:</b>  
-<ul>
-    <li>[Details about eligibility criteria.]</li>
-</ul>
 """
-        elif post_type == "Project (freelancers)":
+        elif post_type == "Project (Freelancer)":
             intro_instruction = "Generate a project collaboration opportunity description for an individual seeking freelancers. Focus on the project's goals, required skills, and appeal to independent professionals, with a flexible and approachable tone."
             format_instruction = """
 Format:
@@ -534,7 +512,7 @@ Format:
     <li>[Details about eligibility criteria.]</li>
 </ul>
 """
-        elif post_type == "Project (Service companies)":
+        elif post_type == "Project (Service Company)":
             intro_instruction = "Generate a project collaboration opportunity description for an individual seeking service companies. Focus on the project's scale, partnership potential, and required expertise, with a formal and professional tone."
             format_instruction = """
 Format:
@@ -564,10 +542,6 @@ Format:
     <li>[Details about the package and any additional benefits.]</li>
 </ul>
 
-<b>Eligibility:</b>  
-<ul>
-    <li>[Details about eligibility criteria.]</li>
-</ul>
 """
         else:
             intro_instruction = "Generate a generic opportunity description for an individual seeking collaboration. The tone should be professional yet approachable, focusing on the individual's goals and the opportunity's purpose."
