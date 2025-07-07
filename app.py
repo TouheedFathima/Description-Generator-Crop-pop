@@ -60,7 +60,7 @@ def generate_description_endpoint():
     print("All keys in payload:", data.keys())
 
     # Define mandatory fields with validation rules based on form type
-    if data.get("companyType") == "company" or "adept" in data:
+    if data.get("companyType") == "company" or "Adept" in data:
         # "For My Company" form
         mandatory_fields = {
             "companyName": {"field_name": "Company Name"},

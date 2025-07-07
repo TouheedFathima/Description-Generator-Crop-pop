@@ -84,7 +84,7 @@ def generate_description(data):
     }
 
     # Define formats based on companyType and postType
-    if company_type in ["company", "adept"]:
+    if company_type in ["company", "Adept"]:
         # "For My Company" formats
         if not post_type:
             intro_instruction = "Generate a generic job description for a role. The tone should be professional and adaptable to any job type."
