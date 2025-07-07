@@ -84,7 +84,7 @@ def generate_description(data):
     }
 
     # Define formats based on companyType and postType
-    if company_type == "company":
+    if company_type in ["company", "adept"]:
         # "For My Company" formats
         if not post_type:
             intro_instruction = "Generate a generic job description for a role. The tone should be professional and adaptable to any job type."
@@ -300,7 +300,8 @@ Format:
 
 <b>Timeline:</b> {workDuration}  
 """
-        else:
+        else:   # Individual types, including "entrepreneur"
+                # "Individual" formats for "Create New Opportunity"
             intro_instruction = "Generate a generic job description for a role. The tone should be professional and adaptable to any job type."
             format_instruction = """
 Format:

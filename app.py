@@ -158,13 +158,18 @@ def generate_description_endpoint():
 @app.route('/pass-opportunity', methods=['POST', 'OPTIONS'])
 def pass_opportunity():
     data = request.json
+    print("companyType value:", data.get("companyType", "Not provided"))  # Specific log
+    print("All keys in payload:", data.keys())
     print("Received payload for /pass-opportunity:", data)
     return jsonify({"message": "Opportunity passed successfully!"})
+   
 
 @app.route('/generate-pass-description', methods=['POST', 'OPTIONS'])
 def generate_pass_description_endpoint():
     data = request.json
     print("Received payload for /generate-pass-description:", data)
+    print("companyType value:", data.get("companyType", "Not provided"))  # Specific log
+    print("All keys in payload:", data.keys())
 
     # # Optional fields with defaults
     # data["companyName"] = data.get("companyName", "Individual")
