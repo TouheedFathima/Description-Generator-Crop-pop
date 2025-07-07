@@ -56,6 +56,8 @@ def extract_text():
 def generate_description_endpoint():
     data = request.json
     print("Received payload for /generate-description:", data)
+    print("companyType value:", data.get("companyType", "Not provided"))  # Specific log
+    print("All keys in payload:", data.keys())
 
     # Define mandatory fields with validation rules based on form type
     if data.get("companyType") == "company" and "workMode" in data:
@@ -86,53 +88,53 @@ def generate_description_endpoint():
             "skills": {"field_name": "Skills"}
         }
 
-    # # Validate mandatory fields
-    # for field, rule in mandatory_fields.items():
-    #     value = data.get(field)
-    #     field_name = rule["field_name"]
-    #     print(f"Validating {field}: {value} (type: {type(value)})")
-    #     if value is None:
-    #         print(f"Field '{field_name}' is missing, will use default in description_generator.py")
-    #         continue
-    #     if not rule.get("validate") and str(value).strip() == "":
-    #         return jsonify({"error": f"Required field '{field_name}' is empty, please fill it.", "field": field, "value": value}), 400
-    #     if rule.get("validate"):
-    #         if not rule["validate"](value):
-    #             error_msg = f"Required field '{field_name}' is invalid, please correct it."
-    #             if field in ["numberOfOpenings", "vacancy"]:
-    #                 error_msg = f"Required field '{field_name}' must be a positive number, please correct it."
-    #             elif field in ["salaryMin", "salaryMax"]:
-    #                 error_msg = f"Required field '{field_name}' must be a non-negative number, please correct it."
-    #             return jsonify({"error": error_msg, "field": field, "value": value}), 400
+    # Validate mandatory fields
+    for field, rule in mandatory_fields.items():
+        value = data.get(field)
+        field_name = rule["field_name"]
+        print(f"Validating {field}: {value} (type: {type(value)})")
+        if value is None:
+            print(f"Field '{field_name}' is missing, will use default in description_generator.py")
+            continue
+        if not rule.get("validate") and str(value).strip() == "":
+            return jsonify({"error": f"Required field '{field_name}' is empty, please fill it.", "field": field, "value": value}), 400
+        if rule.get("validate"):
+            if not rule["validate"](value):
+                error_msg = f"Required field '{field_name}' is invalid, please correct it."
+                if field in ["numberOfOpenings", "vacancy"]:
+                    error_msg = f"Required field '{field_name}' must be a positive number, please correct it."
+                elif field in ["salaryMin", "salaryMax"]:
+                    error_msg = f"Required field '{field_name}' must be a non-negative number, please correct it."
+                return jsonify({"error": error_msg, "field": field, "value": value}), 400
 
     # Additional validations for "For My Company" form
-    # if data.get("companyType") == "company" and "workMode" in data:
-    #     salary_min = float(data.get("salaryMin", 0))
-    #     salary_max = float(data.get("salaryMax", 0))
-    #     if salary_min > salary_max:
-    #         return jsonify({"error": "Maximum salary must be greater than or equal to minimum salary", "field": "salaryMax", "value": salary_max}), 400
+    if data.get("companyType") == "company" and "workMode" in data:
+        salary_min = float(data.get("salaryMin", 0))
+        salary_max = float(data.get("salaryMax", 0))
+        if salary_min > salary_max:
+            return jsonify({"error": "Maximum salary must be greater than or equal to minimum salary", "field": "salaryMax", "value": salary_max}), 400
 
-    #     if isinstance(data.get("skillsRequired"), str):
-    #         data["skillsRequired"] = [s.strip() for s in data["skillsRequired"].split(",") if s.strip()]
+        if isinstance(data.get("skillsRequired"), str):
+            data["skillsRequired"] = [s.strip() for s in data["skillsRequired"].split(",") if s.strip()]
 
-    #     salary_option = data.get("salaryOption", "")
-    #     valid_salary_options = ["Negotiable", "Prefer Not to Disclose", ""]
-    #     if salary_option not in valid_salary_options:
-    #         return jsonify({"error": f"Invalid salary option: {salary_option}. Must be one of {valid_salary_options[:-1]} or empty.", "field": "salaryOption", "value": salary_option}), 400
-    #     data["salaryOption"] = salary_option
-    # else:
-    #     if isinstance(data.get("skills"), str):
-    #         data["skills"] = [s.strip() for s in data["skills"].split(",") if s.strip()]
-    #     if isinstance(data.get("keywords"), str):
-    #         data["keywords"] = [k.strip() for k in data["keywords"].split(",") if k.strip()]
-    #     else:
-    #         data["keywords"] = []
+        salary_option = data.get("salaryOption", "")
+        valid_salary_options = ["Negotiable", "Prefer Not to Disclose", ""]
+        if salary_option not in valid_salary_options:
+            return jsonify({"error": f"Invalid salary option: {salary_option}. Must be one of {valid_salary_options[:-1]} or empty.", "field": "salaryOption", "value": salary_option}), 400
+        data["salaryOption"] = salary_option
+    else:
+        if isinstance(data.get("skills"), str):
+            data["skills"] = [s.strip() for s in data["skills"].split(",") if s.strip()]
+        if isinstance(data.get("keywords"), str):
+            data["keywords"] = [k.strip() for k in data["keywords"].split(",") if k.strip()]
+        else:
+            data["keywords"] = []
 
-    #     salary_option = data.get("salaryOption", "")
-    #     valid_salary_options = ["Negotiable", "Prefer Not to Disclose", ""]
-        # if salary_option not in valid_salary_options:
-        #     return jsonify({"error": f"Invalid salary option: {salary_option}. Must be one of {valid_salary_options[:-1]} or empty.", "field": "salaryOption", "value": salary_option}), 400
-        # data["salaryOption"] = salary_option
+        salary_option = data.get("salaryOption", "")
+        valid_salary_options = ["Negotiable", "Prefer Not to Disclose", ""]
+        if salary_option not in valid_salary_options:
+            return jsonify({"error": f"Invalid salary option: {salary_option}. Must be one of {valid_salary_options[:-1]} or empty.", "field": "salaryOption", "value": salary_option}), 400
+        data["salaryOption"] = salary_option
 
         skills = data.get("skills", [])
         keywords = data.get("keywords", [])

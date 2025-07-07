@@ -325,7 +325,7 @@ Format:
     else:
         # "Individual" formats for "Create New Opportunity"
         if not post_type:
-            intro_instruction = "Generate a generic opportunity description for an individual seeking collaboration. The tone should be professional yet approachable, focusing on the individual's goals and the opportunity's purpose."
+            intro_instruction = "Generate a generic opportunity description for an individual offering collaboration. The tone should be professional yet approachable, focusing on the individual's goals and the opportunity's purpose."
             format_instruction = """
 Format:
 <b>Posted By:</b> {companyName}<br>  
