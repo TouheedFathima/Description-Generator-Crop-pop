@@ -82,7 +82,6 @@ def generate_description(data):
         "timeCommitment": time_commitment,
         "eligibility": eligibility
     }
-
     # Define formats based on companyType and postType
     if company_type in ["company", "Adept"]:
         # "For My Company" formats
@@ -90,12 +89,7 @@ def generate_description(data):
             intro_instruction = "Generate a generic job description for a role. The tone should be professional and adaptable to any job type."
             format_instruction = """
 Format:
-<b>Company:</b> {companyName}<br>
-<b>Location:</b> {location}<br>
-<b>Work Mode:</b> {workMode}<br>
-<b>Role:</b> {title}<br>
-
-<b>About the Opportunity:</b>  
+<b>About the Role:</b>  
 [Brief intro to the role and company.]
 
 <b>Responsibilities:</b>  
@@ -112,15 +106,13 @@ Format:
             intro_instruction = "Generate a professional full-time job description targeted at attracting qualified candidates. The tone should be formal, aspirational, and highlight long-term career growth, company culture, and stability."
             format_instruction = """
 Format:
-<b>Company:</b> {companyName}<br>  
-<b>Location:</b> {location}<br>
-<b>Work Mode:</b> {workMode}<br> 
-<b>Job Type:</b> Full-Time <br><br> 
+<b>About the Role:</b>  
+[Brief overview.]<br>
 
 <b>About the Company:</b>  
 [Brief intro to the company, culture, and mission.]<br>
 
-<b>Roles & Responsibilities:</b>  
+<b>Key Responsibilities:</b>  
 <ul>
     <li>[List of job duties.]</li>
 </ul>
@@ -130,7 +122,12 @@ Format:
     <li>[List of skills and qualifications.]</li>
 </ul>
 
-<b>Benefits:</b>  
+<b>Nice to Have:</b>  
+<ul>
+    <li>[List of optional skills or experiences that enhance the candidate's fit.]</li>
+</ul>
+
+<b>Perks & Benefits:</b>  
 <ul>
     <li>[Perks like health insurance, paid leave, etc.]</li>
 </ul>
@@ -139,11 +136,6 @@ Format:
             intro_instruction = "Generate a clear and professional part-time job description. Highlight flexible hours, key responsibilities, and the specific time commitment required. Keep the tone friendly yet informative."
             format_instruction = """
 Format:
-<b>Company:</b> {companyName}<br>  
-<b>Location:</b> {location}<br> 
-<b>Work Mode:</b> {workMode}<br> 
-<b>Job Type:</b> Part-Time <br><br> 
-
 <b>About the Role:</b>  
 [Brief about the role and work hours.]
 
@@ -166,11 +158,6 @@ Format:
             intro_instruction = "Create a paid internship post that is inviting to students or fresh graduates. Emphasize learning, mentorship, potential growth opportunities, and the stipend as a financial incentive. Keep the tone encouraging and professional."
             format_instruction = """
 Format: 
-<b>Company:</b> {companyName}<br>   
-<b>Location:</b> {location}<br>   
-<b>Work Mode:</b> {workMode}<br>   
-<b>Internship Type:</b> Paid Internship  <br><br> 
-
 <b>About the Company:</b>  
 [Brief overview.]
 
@@ -198,11 +185,6 @@ Format:
             intro_instruction = "Create an unpaid internship post that is inviting to students or fresh graduates. Emphasize learning, mentorship, networking opportunities, and other non-monetary benefits to attract candidates. Keep the tone encouraging and professional."
             format_instruction = """
 Format: 
-<b>Company:</b> {companyName}<br>   
-<b>Location:</b> {location}<br> 
-<b>Work Mode:</b> {workMode}<br>   
-<b>Internship Type:</b> Unpaid Internship  <br><br> 
-
 <b>About the Company:</b>  
 [Brief overview.]
 
@@ -235,11 +217,6 @@ Format:
             intro_instruction = "Generate a professional contract opportunity post. Focus on short-term project deliverables, duration, and payment. It is not a job. The tone should appeal to freelancers or short-term collaborators."
             format_instruction = """
 Format:
-<b>Contract Role:</b> {title}<br>   
-<b>Location:</b> {location}<br> 
-<b>Work Mode:</b> {workMode}<br>  
-<b>Type:</b> Contract-Based ({workDuration})<br><br> 
-
 <b>Overview:</b>  
 [Short intro to project.]
 
@@ -259,10 +236,6 @@ Format:
             intro_instruction = "Generate a project collaboration post for individual freelancers. This is not a job but an opportunity for freelancers to contribute to a specific project with clear goals and timelines. Focus on skillset needed, project objectives, and payment terms. Keep the tone flexible and appealing to independent professionals."
             format_instruction = """
 Format:
-<b>Company Name:</b> {companyName}<br>  
-<b>Location:</b> {location}<br>   
-<b>Work Mode:</b> {workMode}<br> br>   
-
 <b>Project Overview:</b>  
 [Summary of the project, its impact, and goals.]
 
@@ -280,10 +253,6 @@ Format:
             intro_instruction = "Generate a project collaboration post for service companies. This is not a job but an opportunity for companies to collaborate on a specific project with clear goals and timelines. Focus on partnership potential, project scale, and required expertise. Keep the tone formal and professional."
             format_instruction = """
 Format:
-<b>Company Name:</b> {companyName}<br>  
-<b>Location:</b> {location}<br>   
-<b>Work Mode:</b> {workMode}<br><br>   
-
 <b>Project Overview:</b>  
 [Summary of the project, its impact, and goals.]
 
@@ -305,11 +274,6 @@ Format:
             intro_instruction = "Generate a generic job description for a role. The tone should be professional and adaptable to any job type."
             format_instruction = """
 Format:
-<b>Company:</b> {companyName}<br>   
-<b>Location:</b> {location}<br>  
-<b>Work Mode:</b> {workMode}<br>   
-<b>Role:</b> {title}<br><br> 
-
 <b>About the Opportunity:</b>  
 [Brief intro to the role and company.]
 
@@ -329,17 +293,11 @@ Format:
             intro_instruction = "Generate a generic opportunity description for an individual offering collaboration. The tone should be professional yet approachable, focusing on the individual's goals and the opportunity's purpose."
             format_instruction = """
 Format:
-<b>Posted By:</b> {companyName}<br>  
-<b>Location:</b> {location}<br>    
-<b>Opportunity:</b> {title}<br> 
-<b>Application Deadline:</b> {lastDate}<br>   
-<b>Vacancies:</b> {vacancy}<br><br> 
+<b>About the Role:</b>  
+[Brief intro to the opportunity and its purpose.]
 
 <b>About Me:</b>  
 [Brief intro to the individual and their goals.]
-
-<b>About the Role:</b>  
-[Brief intro to the opportunity and its purpose.]
 
 <b>Key Responsibilities:</b>  
 <ul>
@@ -370,17 +328,11 @@ Format:
             intro_instruction = "Generate a professional full-time opportunity description for an individual seeking a long-term collaborator. The tone should be approachable yet formal, emphasizing the individual's vision, the role's impact, and opportunities for growth."
             format_instruction = """
 Format:
-<b>Posted By:</b> {companyName}<br>   
-<b>Location:</b> {location}<br>  
-<b>Job Type:</b> Full-Time<br>
-<b>Application Deadline:</b> {lastDate}<br>  
-<b>Vacancies:</b> {vacancy}<br><br>  
+<b>About the Role:</b>  
+[Details about the role, its impact, and long-term potential.]<br>
 
 <b>About Me:</b><br>
 [Brief intro to the individual, their vision, and passion for the project.]
-
-<b>About the Role:</b>  
-[Details about the role, its impact, and long-term potential.]<br>
 
 <b>Key Responsibilities:</b>  
 <ul>
@@ -411,17 +363,11 @@ Format:
             intro_instruction = "Generate a clear and professional part-time opportunity description for an individual seeking a flexible collaborator. Highlight the role's flexibility, key responsibilities, and the individual's support, with a friendly yet professional tone."
             format_instruction = """
 Format:
-<b>Posted By:</b> {companyName}<br> 
-<b>Location:</b> {location}<br>  
-<b>Job Type:</b> Part-Time  
-<b>Application Deadline:</b> {lastDate}<br>  
-<b>Vacancies:</b> {vacancy}<br><br> 
+<b>About the Role:</b>  
+[Brief about the role, its flexibility, and expected time commitment.]
 
 <b>About Me:</b>  
 [Brief intro to the individual and their goals.]
-
-<b>About the Role:</b>  
-[Brief about the role, its flexibility, and expected time commitment.]
 
 <b>Key Responsibilities:</b>  
 <ul>
@@ -452,17 +398,11 @@ Format:
             intro_instruction = "Create a paid internship opportunity description for an individual seeking a learner. Emphasize the learning opportunities, mentorship, and stipend, with an encouraging and professional tone focused on growth and development."
             format_instruction = """
 Format: 
-<b>Posted By:</b> {companyName}<br> 
-<b>Location:</b> {location}<br>   
-<b>Internship Type:</b> Paid Internship <br>  
-<b>Application Deadline:</b> {lastDate}<br>   
-<b>Vacancies:</b> {vacancy}<br><br>   
+<b>About the Role:</b>  
+[What interns will work on and learn.]
 
 <b>About Me:</b>  
 [Brief overview of the individual and their commitment to mentoring.]
-
-<b>About the Role:</b>  
-[What interns will work on and learn.]
 
 <b>Key Responsibilities:</b>  
 <ul>
@@ -493,17 +433,11 @@ Format:
             intro_instruction = "Create an unpaid internship opportunity description for an individual seeking a learner. Emphasize the learning opportunities, networking benefits, and non-monetary perks, with an encouraging and professional tone focused on growth."
             format_instruction = """
 Format: 
-<b>Posted By:</b> {companyName}<br>   
-<b>Location:</b> {location}<br> 
-<b>Internship Type:</b> Unpaid Internship <br> 
-<b>Application Deadline:</b> {lastDate}<br> 
-<b>Vacancies:</b> {vacancy}<br><br> 
+<b>About the Role:</b>  
+[What interns will work on and learn.]
 
 <b>About Me:</b>  
 [Brief overview of the individual and their commitment to mentoring.]
-
-<b>About the Role:</b>  
-[What interns will work on and learn.]
 
 <b>Key Responsibilities:</b>  
 <ul>
@@ -534,17 +468,11 @@ Format:
             intro_instruction = "Generate a professional contract opportunity description for an individual seeking a short-term collaborator. Focus on the project's deliverables, timeline, and compensation, with a professional tone appealing to freelancers."
             format_instruction = """
 Format:
-<b>Posted By:</b> {companyName}<br> 
-<b>Location:</b> {location}<br>   
-<b>Opportunity Type:</b> Contract-Based <br>  
-<b>Application Deadline:</b> {lastDate}<br> 
-<b>Vacancies:</b> {vacancy}<br><br> 
+<b>About the Role:</b>  
+[Short intro to the project and its goals.]
 
 <b>About Me:</b>  
 [Brief overview of the individual and their project.]
-
-<b>About the Role:</b>  
-[Short intro to the project and its goals.]
 
 <b>Key Responsibilities:</b>  
 <ul>
@@ -575,17 +503,11 @@ Format:
             intro_instruction = "Generate a project collaboration opportunity description for an individual seeking freelancers. Focus on the project's goals, required skills, and appeal to independent professionals, with a flexible and approachable tone."
             format_instruction = """
 Format:
-<b>Posted By:</b> {companyName}<br>  
-<b>Location:</b> {location}<br> 
-<b>Opportunity Type:</b> Project for Freelancers <br>  
-<b>Application Deadline:</b> {lastDate}<br> 
-<b>Vacancies:</b> {vacancy}<br><br> 
+<b>About the Role:</b>  
+[Summary of the project, its impact, and goals.]
 
 <b>About Me:</b>  
 [Brief overview of the individual and their vision.]
-
-<b>About the Role:</b>  
-[Summary of the project, its impact, and goals.]
 
 <b>Key Responsibilities:</b>  
 <ul>
@@ -616,17 +538,11 @@ Format:
             intro_instruction = "Generate a project collaboration opportunity description for an individual seeking service companies. Focus on the project's scale, partnership potential, and required expertise, with a formal and professional tone."
             format_instruction = """
 Format:
-<b>Posted By:</b> {companyName}<br>   
-<b>Location:</b> {location}<br> 
-<b>Opportunity Type:</b> Project for Service Companies <br> 
-<b>Application Deadline:</b> {lastDate}<br>   
-<b>Vacancies:</b> {vacancy}<br> 
+<b>About the Role:</b>  
+[Summary of the project, its impact, and goals.]
 
 <b>About Me:</b>  
 [Brief overview of the individual and their vision.]
-
-<b>About the Role:</b>  
-[Summary of the project, its impact, and goals.]
 
 <b>Key Responsibilities:</b>  
 <ul>
@@ -657,17 +573,11 @@ Format:
             intro_instruction = "Generate a generic opportunity description for an individual seeking collaboration. The tone should be professional yet approachable, focusing on the individual's goals and the opportunity's purpose."
             format_instruction = """
 Format:
-<b>Posted By:</b> {companyName}<br>   
-<b>Location:</b> {location}<br> 
-<b>Opportunity:</b> {title}<br> 
-<b>Application Deadline:</b> {lastDate}<br>  
-<b>Vacancies:</b> {vacancy}<br> 
+<b>About the Role:</b>  
+[Brief intro to the opportunity and its purpose.]
 
 <b>About Me:</b>  
 [Brief intro to the individual and their goals.]
-
-<b>About the Role:</b>  
-[Brief intro to the opportunity and its purpose.]
 
 <b>Key Responsibilities:</b>  
 <ul>
