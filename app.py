@@ -24,15 +24,21 @@ CORS(
         "origins": ["https://app.opptiverse.com", "http://localhost:3000"],
         "methods": ["GET", "POST", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization"],
-        "supports_credentials": True
+        "supports_credentials": True,
+        "max_age": 86400  # Cache preflight response for 24 hours
     }}
 )
 
 @app.before_request
 def handle_options_request():
     if request.method == "OPTIONS":
-        return '', 200
-
+        response = app.make_response('')
+        response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+        response.headers['Access-Control-Max-Age'] = '86400'  # Cache preflight for 24 hours
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+        return response, 200
 @app.route('/')
 def index():
     return render_template('index.html')
