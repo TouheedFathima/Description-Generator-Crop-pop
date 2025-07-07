@@ -210,7 +210,8 @@ Format:
 Format:
 <b>Overview:</b>  
 [Short intro to project.]
-
+<b>About the Company:</b>  
+[Brief overview.]
 <b>Responsibilities:</b>  
 <ul>
     <li>[List of deliverables.]</li>
@@ -220,8 +221,11 @@ Format:
 <ul>
     <li>[Tools, skills, experience needed.]</li>
 </ul>
+<b>Nice to Have:</b>  
+<ul>
+    <li>[List of optional skills, e.g., prior contract work experience.]</li>
+</ul>
 
-<b>Contract Duration:</b> {workDuration}  
 """
         elif post_type == "Project (Freelancer)":
             intro_instruction = "Generate a project collaboration post for individual freelancers. This is not a job but an opportunity for freelancers to contribute to a specific project with clear goals and timelines. Focus on skillset needed, project objectives, and payment terms. Keep the tone flexible and appealing to independent professionals."
