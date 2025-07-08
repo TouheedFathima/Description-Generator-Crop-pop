@@ -23,7 +23,7 @@ def clean_html_spacing(html):
     return cleaned_html
 
 def generate_description(data):
-    wordCount = data.get("wordCount", 1000) or 1000
+    wordCount = data.get("wordCount", 800) or 800
     company_type = data.get("companyType", "company")
     # Use the correct field name based on companyType
     post_type = (data.get("opportunityType", "") or "") if company_type == "company" else (data.get("postType", "") or "")
@@ -225,7 +225,6 @@ Format:
 <ul>
     <li>[List of optional skills, e.g., prior contract work experience.]</li>
 </ul>
-
 """
         elif post_type == "Project (Freelancer)":
             intro_instruction = "Generate a project collaboration post for individual freelancers. This is not a job but an opportunity for freelancers to contribute to a specific project with clear goals and timelines. Focus on skillset needed, project objectives, and payment terms. Keep the tone flexible and appealing to independent professionals."
@@ -622,7 +621,7 @@ Format:
     - If any field is missing or empty, use generic placeholders (e.g., 'Not specified' for location, 'Competitive compensation' for package).
     -Do NOT MENTION ANY NOTES at the end of description.
     -DO NOT MENTION THIS IN DESCRIPTION "Note: The output is ready to copy-paste into a web page or email client that supports HTML formatting. I've followed the provided format and instructions, and the response is at least 1000 words
-    -adhere to the provided format without adding extraneous content with other headings like vacancies,last date to apply".
+    -adhere to the provided format without adding extraneous content with other headings like vacancies,last date to apply even fo contract-based stick to the given format no need to mention vacancies and last date to apply".
     """)
 
     chain = LLMChain(llm=llm, prompt=prompt)
@@ -631,7 +630,7 @@ Format:
     return cleaned_response
 
 def generate_pass_opportunity_description(data):
-    wordCount = data.get("wordCount", 1000) or 1000
+    wordCount = data.get("wordCount", 800) or 800
     company_type = data.get("companyType", "company")
     company_name = (data.get("companyName", "") or "Individual").strip()
     opportunity_title = html.escape(data.get("opportunityTitle", "") or "Untitled Opportunity")
@@ -698,13 +697,6 @@ def generate_pass_opportunity_description(data):
     - First, analyze the {extractedText} to identify and extract key fields (e.g., company name, role, skills, location). Use these as the foundation for the description.
     - Fill in any missing details with the provided form data or use generic placeholders (e.g., 'Not specified') if neither is available.
     - Generate an HTML-formatted description with the following structure:
-      - Use <b>Company:</b> {companyName}<br> for the company name.
-      - Use <b>Opportunity Title:</b> {opportunityTitle}<br> for the title.
-      - Use <b>Opportunity Type:</b> {opportunityType}<br> for the type.
-      - Use <b>Location:</b> {location}<br> for the location.
-      - Use <b>Work Mode:</b> {workMode}<br> for the work mode.
-      - Use <b>Number of Openings:</b> {number_of_openings}<br> for openings.
-      - Use <b>Last Date:</b> {lastDate}<br> for the deadline.
       - Use <b>About the Opportunity:</b><br> [paragraph with bolded important words] followed by two <br> tags.
       - Use <b>Key Responsibilities:</b><br><ul><li>[list items]</li></ul> followed by two <br> tags.
       - Use <b>Required Skills:</b><br><ul><li>[list items]</li></ul> followed by two <br> tags.
