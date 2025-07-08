@@ -620,7 +620,7 @@ Format:
     - Make the tone fit the nature of the role (e.g., formal for full-time, friendly for internships).
     - If any field is missing or empty, use generic placeholders (e.g., 'Not specified' for location, 'Competitive compensation' for package).
     -Do NOT MENTION ANY NOTES at the end of description.
-    -DO NOT MENTION THIS IN DESCRIPTION "Note: The output is ready to copy-paste into a web page or email client that supports HTML formatting. I've followed the provided format and instructions, and the response is at least 1000 words
+    -DO NOT MENTION THIS IN DESCRIPTION "Note: The output is ready to copy-paste into a web page or email client that supports HTML formatting. I've followed the provided format and instructions, and the response is at least 800 words
     -adhere to the provided format without adding extraneous content with other headings like vacancies,last date to apply even fo contract-based stick to the given format no need to mention vacancies and last date to apply".
     """)
 
@@ -672,6 +672,68 @@ def generate_pass_opportunity_description(data):
         "extractedText": extracted_text,
         "wordCount": wordCount
     }
+    if company_type in ["company", "Adept"]:
+        format_instruction = """
+Format:
+<b>Company:</b> {companyName}<br>
+<b>About the Company:</b>  
+[Brief overview.]
+<b>About the Opportunity:</b><br>
+[Brief overview based on extracted text and form data, with bolded important words.]<br><br>
+
+<b>Key Responsibilities:</b><br>
+<ul>
+    <li>[List of inferred or provided responsibilities.]</li>
+</ul><br><br>
+
+<b>Required Skills & Qualifications:</b><br>
+<ul>
+    <li>[List of inferred or provided skills.]</li>
+</ul><br><br>
+
+<b>Nice to Have:</b><br>
+<ul>
+    <li>[List of optional skills or experiences.]</li>
+</ul><br><br>
+
+<b>Perks & Benefits:</b><br>
+<ul>
+    <li>[Details about compensation or benefits inferred or provided.]</li>
+</ul>
+"""
+    else:
+        format_instruction = """
+Format:
+<b>About the Company:</b>  
+[Brief overview.]
+<b>About the Opportunity:</b><br>
+[Brief overview based on extracted text and form data, with bolded important words.]<br><br>
+
+<b>Key Responsibilities:</b><br>
+<ul>
+    <li>[List of inferred or provided responsibilities.]</li>
+</ul><br><br>
+
+<b>Required Skills & Qualifications:</b><br>
+<ul>
+    <li>[List of inferred or provided skills.]</li>
+</ul><br><br>
+
+<b>Nice to Have:</b><br>
+<ul>
+    <li>[List of optional skills or experiences.]</li>
+</ul><br><br>
+
+<b>Perks & Benefits:</b><br>
+<ul>
+    <li>[Details about compensation or benefits inferred or provided.]</li>
+</ul><br><br>
+
+<b>Eligibility:</b><br>
+<ul>
+    <li>[Details about eligibility criteria inferred or provided.]</li>
+</ul>
+"""
 
     prompt = ChatPromptTemplate.from_template("""
     You are tasked with generating a professional opportunity description based on the provided details and an extracted text from an image. Use the extracted text as the primary source to infer key details such as company name, opportunity title, opportunity type (e.g., Full time, Part time, Contract, Internship, Project), location, skills, and any other relevant information. Supplement these inferences with the provided form data where available, but prioritize the extracted text for context. The tone should adapt to the inferred opportunity type:
