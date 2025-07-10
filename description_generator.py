@@ -639,18 +639,42 @@ def generate_pass_opportunity_description(data):
     if isinstance(skills, str):
         skills = [s.strip() for s in skills.split(",") if s.strip()]
 
-    extracted_text = data.get("extractedText", "").strip() or "No additional context from image"
-    if extracted_text:
+    # Determine if image was submitted by checking extractedText
+    extracted_text = data.get("extractedText", "").strip()
+    if extracted_text and extracted_text != "No additional context from image":
         print(f"Using extracted text: {extracted_text[:1000]}...")
-
-    important_words = list(set([company_name] + skills + [word.strip() for word in extracted_text.split() if word.strip()]))
-    important_words = [word for word in important_words if word]
-
-    location = data.get("location", "") or "Not specified"
-    number_of_openings = data.get("numberOfOpenings", 1) if data.get("numberOfOpenings") and data.get("numberOfOpenings") > 0 else 1
-    last_date = data.get("lastDate", "") or "Not specified"
-    work_mode = data.get("workMode", "") or "Not specified"
-    time_commitment = data.get("timeCommitment", "") or "Not specified"
+        # Use extracted text as primary source
+        important_words = list(set([company_name] + skills + [word.strip() for word in extracted_text.split() if word.strip()]))
+        prompt_data = {
+            "companyName": company_name,
+            "opportunityTitle": opportunity_title,
+            "opportunityType": opportunity_type,
+            "location": "Not specified",  # Default unless inferred
+            "workMode": "Not specified",  # Default unless inferred
+            "timeCommitment": "Not specified",  # Added default
+            "skillsRequired": "Not specified",  # Default unless inferred
+            "important_words": ", ".join(important_words) if important_words else "None",
+            "extractedText": extracted_text,
+            "wordCount": wordCount
+        }
+    else:
+        # Use field data when no image is submitted
+        location = data.get("location", "") or "Not specified"
+        work_mode = data.get("workMode", "") or "Not specified"
+        time_commitment = data.get("timeCommitment", "") or "Not specified"
+        important_words = list(set([company_name] + skills))
+        prompt_data = {
+            "companyName": company_name,
+            "opportunityTitle": opportunity_title,
+            "opportunityType": opportunity_type,
+            "location": location,
+            "workMode": work_mode,
+            "timeCommitment": time_commitment,
+            "skillsRequired": ", ".join(skills) if skills else "Not specified",
+            "important_words": ", ".join(important_words) if important_words else "None",
+            "extractedText": "No additional context from image",
+            "wordCount": wordCount
+        }
 
     llm = ChatGroq(
         temperature=0.7,
@@ -658,28 +682,14 @@ def generate_pass_opportunity_description(data):
         model_name="llama3-70b-8192"
     )
 
-    prompt_data = {
-        "companyName": company_name,
-        "opportunityTitle": opportunity_title,
-        "opportunityType": opportunity_type,
-        "location": location,
-        "number_of_openings": number_of_openings,
-        "lastDate": last_date,
-        "skillsRequired": ", ".join(skills) if skills else "Not specified",
-        "important_words": ", ".join(important_words) if important_words else "None",
-        "workMode": work_mode,
-        "timeCommitment": time_commitment,
-        "extractedText": extracted_text,
-        "wordCount": wordCount
-    }
     if company_type in ["company", "Adept"]:
         format_instruction = """
 Format:
-<b>Company:</b> {companyName}<br>
 <b>About the Company:</b>  
-[Brief overview.]
+[Brief intro to the company, culture, and mission.]<br>
+
 <b>About the Opportunity:</b><br>
-[Brief overview based on extracted text and form data, with bolded important words.]<br><br>
+[Brief overview based on extracted text or form data, with bolded important words.]<br><br>
 
 <b>Key Responsibilities:</b><br>
 <ul>
@@ -705,9 +715,10 @@ Format:
         format_instruction = """
 Format:
 <b>About the Company:</b>  
-[Brief overview.]
+[Brief intro to the company, culture, and mission.]<br>
+
 <b>About the Opportunity:</b><br>
-[Brief overview based on extracted text and form data, with bolded important words.]<br><br>
+[Brief overview based on extracted text or form data, with bolded important words.]<br><br>
 
 <b>Key Responsibilities:</b><br>
 <ul>
@@ -735,45 +746,43 @@ Format:
 </ul>
 """
 
-    prompt = ChatPromptTemplate.from_template("""
-    You are tasked with generating a professional opportunity description based on the provided details and an extracted text from an image. Use the extracted text as the primary source to infer key details such as company name, opportunity title, opportunity type (e.g., Full time, Part time, Contract, Internship, Project), location, skills, and any other relevant information. Supplement these inferences with the provided form data where available, but prioritize the extracted text for context. The tone should adapt to the inferred opportunity type:
+    intro_instruction = """
+    You are tasked with generating a professional opportunity description. Use the provided data to create the description:
+    - If extracted text is available, analyze it to infer key details such as company name, opportunity title, opportunity type (e.g., Full time, Part time, Contract, Internship, Project), location, skills, and any other relevant information. Prioritize the extracted text for context.
+    - If no extracted text is available, rely on the provided form data for all details.
+    The tone should adapt to the inferred or provided opportunity type:
     - Formal and structured for Full time or Contract.
     - Encouraging and learning-focused for Internships.
     - Flexible and collaborative for Part time or Projects.
+    """
+
+    prompt = ChatPromptTemplate.from_template(f"""
+    {intro_instruction}
 
     Details provided:
-    - Extracted Text: {extractedText}
-    - Company Name: {companyName} (use if not inferred from extracted text)
-    - Opportunity Title: {opportunityTitle} (use if not inferred)
-    - Opportunity Type: {opportunityType} (use if not inferred)
-    - Location: {location} (use if not inferred)
-    - Work Mode: {workMode} (use if not inferred)
-    - Number of Openings: {number_of_openings}
-    - Last Date: {lastDate} (use if not inferred)
-    - Skills Required: {skillsRequired} (use if not inferred)
-    - Time Commitment: {timeCommitment} (use if not inferred)
+    - Extracted Text: {{extractedText}}
+    - Company Name: {{companyName}}
+    - Opportunity Title: {{opportunityTitle}}
+    - Opportunity Type: {{opportunityType}}
+    - Location: {{location}}
+    - Work Mode: {{workMode}}
+    - Time Commitment: {{timeCommitment}}
+    - Skills Required: {{skillsRequired}}
 
-    Important words to bold: {important_words}
+    Important words to bold: {{important_words}}
+
+    {format_instruction}
 
     Instructions:
-    - First, analyze the {extractedText} to identify and extract key fields (e.g., company name, role, skills, location). Use these as the foundation for the description.
-    - Fill in any missing details with the provided form data or use generic placeholders (e.g., 'Not specified') if neither is available.
-    - Generate an HTML-formatted description with the following structure:
-      - Use <b>About the Opportunity:</b><br> [paragraph with bolded important words] followed by two <br> tags.
-      - Use <b>Key Responsibilities:</b><br><ul><li>[list items]</li></ul> followed by two <br> tags.
-      - Use <b>Required Skills:</b><br><ul><li>[list items]</li></ul> followed by two <br> tags.
-      - Use <b>Benefits:</b><br><ul><li>[list items]</li></ul> for Full time roles, followed by two <br> tags.
-      - Use <b>Learning Benefits:</b><br><ul><li>[list items]</li></ul> for Internships, followed by two <br> tags.
-      - Use <b>Perks:</b><br><ul><li>[list items]</li></ul> for Part time roles, followed by two <br> tags.
-      - Use <b>Deliverables:</b><br><ul><li>[list items]</li></ul> for Contract roles, followed by two <br> tags.
-      - Use <b>Project Goals:</b><br><ul><li>[list items]</li></ul> for Project roles, followed by two <br> tags.
+    - Analyze the {{extractedText}} to infer details if available, otherwise use the provided form data.
+    - Fill in any missing details with generic placeholders (e.g., 'Not specified') if neither extracted text nor form data provides them.
     - Ensure exactly two <br> tags between sections for clean spacing.
     - Use only <b> tags, not **, for bolding important words within paragraphs (e.g., <b>Manvian</b>).
     - Do NOT bold words within <ul> lists.
-    - Ensure the response is at least {wordCount} words. Expand each section thoughtfully with relevant details based on the {extractedText} and form data.
-    - Infer the opportunity type from {extractedText} if not provided or unclear, and adjust the tone and section accordingly.
+    - Ensure the response is at least {{wordCount}} words. Expand each section thoughtfully with relevant details based on the {{extractedText}} or form data.
+    - Infer the opportunity type from {{extractedText}} if not provided, and adjust the tone and section accordingly.
     - Avoid mentioning the instructions or the process of inference in the output.
-    -Do NOT MENTION ANY NOTES at the end of description.                                           
+    - Do NOT mention any notes at the end of the description.
     """)
 
     chain = LLMChain(llm=llm, prompt=prompt)
