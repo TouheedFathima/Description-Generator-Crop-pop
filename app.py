@@ -39,6 +39,7 @@ def handle_options_request():
         response.headers['Access-Control-Max-Age'] = '86400'  # Cache preflight for 24 hours
         response.headers['Access-Control-Allow-Credentials'] = 'true'
         return response, 200
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -88,11 +89,15 @@ def generate_description_endpoint():
             "location": {"field_name": "Location"},
             "address": {"field_name": "Address"},
             "title": {"field_name": "Title"},
-            "package": {"field_name": "Package"},
             "lastDate": {"field_name": "Last Date"},
             "vacancy": {"field_name": "Vacancy", "validate": lambda v: float(v) > 0 if isinstance(v, (int, float, str)) and str(v).replace('.', '').isdigit() else False},
             "skills": {"field_name": "Skills"}
         }
+        # Conditionally remove 'package' from mandatory fields if postType is "Internship (Unpaid)"
+        if data.get("postType") == "Internship (Unpaid)":
+            print("Skipping 'package' validation for Internship (Unpaid)")
+        else:
+            mandatory_fields["package"] = {"field_name": "Package"}
 
     # Validate mandatory fields
     for field, rule in mandatory_fields.items():
@@ -114,7 +119,7 @@ def generate_description_endpoint():
                 return jsonify({"error": error_msg, "field": field, "value": value}), 400
 
     # Additional validations for "For My Company" form
-    if data.get("companyType") == "company" and "workMode" in data:
+    if data.get("companyType") == "company" or "Adept" in data:
         salary_min = float(data.get("salaryMin", 0))
         salary_max = float(data.get("salaryMax", 0))
         if salary_min > salary_max:
@@ -176,49 +181,6 @@ def generate_pass_description_endpoint():
     print("Received payload for /generate-pass-description:", data)
     print("companyType value:", data.get("companyType", "Not provided"))  # Specific log
     print("All keys in payload:", data.keys())
-
-    # # Optional fields with defaults
-    # data["companyName"] = data.get("companyName", "Individual")
-    # data["location"] = data.get("location", "Not specified")
-    # data["workMode"] = data.get("workMode", "Not specified")
-    # data["numberOfOpenings"] = float(data.get("numberOfOpenings", 1))
-    # data["lastDate"] = data.get("lastDate", "")
-    # data["educationRequirements"] = data.get("educationRequirements", "Not specified")
-    # data["industryExpertise"] = data.get("industryExpertise", "")
-    # data["preferredExperience"] = data.get("preferredExperience", "Not specified")
-    # data["skillsRequired"] = data.get("skillsRequired", "")
-    # data["languagePreference"] = data.get("languagePreference", "")
-    # data["genderPreference"] = data.get("genderPreference", "")
-    # data["salaryMin"] = float(data.get("salaryMin", 0))
-    # data["salaryMax"] = float(data.get("salaryMax", 0))
-    # data["timeCommitment"] = data.get("timeCommitment", "")
-    # data["recruiterName"] = data.get("recruiterName", "")
-    # data["phoneNumber"] = data.get("phoneNumber", "")
-
-    # # Validate salaryOption
-    # salary_option = data.get("salaryOption", "")
-    # valid_salary_options = ["Negotiable", "Prefer Not to Disclose", ""]
-    # if salary_option not in valid_salary_options:
-    #     return jsonify({"error": f"Invalid salary option: {salary_option}. Must be one of {valid_salary_options[:-1]} or empty.", "field": "salaryOption", "value": salary_option}), 400
-    # data["salaryOption"] = salary_option
-
-    # # Validate optional fields only if provided
-    # optional_fields = {
-    #     "phoneNumber": {"field_name": "Phone Number", "validate": lambda v: len(re.sub(r"[^0-9]", "", v)) >= 10},
-    #     "emailAddress": {"field_name": "Email Address", "validate": lambda v: bool(re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", v))}
-    # }
-    # for field, rule in optional_fields.items():
-    #     value = data.get(field)
-    #     if value and str(value).strip() != "":
-    #         if not rule["validate"](value):
-    #             error_msg = f"Field '{rule['field_name']}' is invalid, please correct it."
-    #             if field == "phoneNumber":
-    #                 error_msg = f"Field '{rule['field_name']}' must be a valid phone number (at least 10 digits), please correct it."
-    #             return jsonify({"error": error_msg, "field": field, "value": value}), 400
-
-    # # Validate salary range
-    # if data["salaryMin"] > data["salaryMax"] and data["salaryMax"] != 0:
-    #     return jsonify({"error": "Maximum salary must be greater than or equal to minimum salary", "field": "salaryMax", "value": data["salaryMax"]}), 400
 
     # Process skillsRequired if provided
     if isinstance(data.get("skillsRequired"), str) and data["skillsRequired"].strip():
